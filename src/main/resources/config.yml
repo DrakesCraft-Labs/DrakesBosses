@@ -442,12 +442,34 @@ boss-arena:
   # Debe recrearse manualmente solo con el servidor detenido y sin jugadores dentro.
   world-border-size: 4096
   entry-fees:
-    default: 500000
-    zeus: 250000
-    hades: 375000
-    tifon: 1500000
-    dragon: 2500000
-    wither_storm: 5000000
+    # Cada integrante de un grupo paga esta entrada. Los valores son
+    # explícitos para que /bosswarp precios no dependa de un fallback oculto.
+    default: 2500000
+    circe: 2500000
+    polifemo: 2500000
+    dios_corrupto: 2500000
+    thor: 2500000
+    ares: 2500000
+    poseidon: 2500000
+    loki: 2500000
+    zeus: 1250000
+    hades: 1875000
+    jax: 2500000
+    heimdall: 3750000
+    hidra: 3750000
+    cerbero: 3750000
+    artemisa: 3750000
+    prometeo: 3750000
+    coloso_end: 3750000
+    ra: 3750000
+    isis: 3750000
+    anubis: 3750000
+    set: 3750000
+    odin: 5000000
+    kratos: 5000000
+    tifon: 7500000
+    dragon: 12500000
+    wither_storm: 25000000
     # Permiso opcional para pruebas administrativas sin retirar Dragmas.
     free-permission: "drakesbosses.bosswarp.free"
   targeted-challenges:

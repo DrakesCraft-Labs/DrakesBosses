@@ -96,16 +96,23 @@ public final class BossWarpCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendPrices(Player player) {
-        String standard = formatFee(arenas.entryFee("default"));
-        player.sendMessage("§6[BossArena] §eEntradas por jugador: §fZeus §6" + formatFee(arenas.entryFee("zeus"))
-                + " §8| §fHades §6" + formatFee(arenas.entryFee("hades"))
-                + " §8| §fTifón §6" + formatFee(arenas.entryFee("tifon")));
-        player.sendMessage("§6[BossArena] §fDragón Ancestral §6" + formatFee(arenas.entryFee("dragon"))
-                + " §8| §fWither Storm §6" + formatFee(arenas.entryFee("wither_storm")));
-        player.sendMessage("§6[BossArena] §eEntrada general: §6" + standard
-                + " §7(Circe, Polifemo, Dios Corrupto, Thor, Ares, Poseidón, Loki, Odín, Kratos)");
-        player.sendMessage("§6[BossArena] §7Heimdall, Hidra, Cerbero, Artemisa, Prometeo, Coloso End, Ra, Isis, Anubis, Set, Jax/Ajax.");
-        player.sendMessage("§8El grupo paga una entrada por integrante. Si falla la creación, se reembolsa todo.");
+        player.sendMessage("§6§l[BossArena] §eEntrada por jugador en Dragmas");
+        player.sendMessage(line("Circe", "circe", "Polifemo", "polifemo", "Dios Corrupto", "dios_corrupto"));
+        player.sendMessage(line("Thor", "thor", "Ares", "ares", "Poseidón", "poseidon"));
+        player.sendMessage(line("Loki", "loki", "Zeus", "zeus", "Hades", "hades"));
+        player.sendMessage(line("Jax/Ajax", "jax", "Heimdall", "heimdall", "Hidra", "hidra"));
+        player.sendMessage(line("Cerbero", "cerbero", "Artemisa", "artemisa", "Prometeo", "prometeo"));
+        player.sendMessage(line("Coloso End", "coloso_end", "Ra", "ra", "Isis", "isis"));
+        player.sendMessage(line("Anubis", "anubis", "Set", "set", "Odín", "odin"));
+        player.sendMessage(line("Kratos", "kratos", "Tifón", "tifon", "Dragón", "dragon"));
+        player.sendMessage("§7Wither Storm §6" + formatFee(arenas.entryFee("wither_storm")));
+        player.sendMessage("§8En grupo, cada integrante paga. Un fallo de creación revierte el cobro una vez.");
+    }
+
+    private String line(String firstName, String firstId, String secondName, String secondId, String thirdName, String thirdId) {
+        return "§7" + firstName + " §6" + formatFee(arenas.entryFee(firstId))
+                + " §8| §7" + secondName + " §6" + formatFee(arenas.entryFee(secondId))
+                + " §8| §7" + thirdName + " §6" + formatFee(arenas.entryFee(thirdId));
     }
 
     private static String formatFee(double fee) {
