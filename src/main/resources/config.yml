@@ -17,17 +17,6 @@ integrations:
     boss-rewards:
       enabled: true
 
-# El mundo se prepara y valida durante la migración. Por defecto el plugin no
-# crea mundos: una arena inválida rechaza la entrada antes de cobrar.
-boss-arena:
-  world-name: drakes_bosses
-  allow-auto-create: false
-  # Paper 1.21.11 expone mundos Multiverse planos como WorldType.DEFAULT.
-  # La seguridad depende del nombre exclusivo, carga explícita y límite, no de
-  # esa etiqueta API que impediría abrir todas las arenas válidas.
-  require-flat: false
-  world-border-size: 4096
-
 # Telemetría operativa hacia Star. No interviene en compras ni almacena datos de jugadores.
 star-monitor:
   enabled: false
@@ -441,8 +430,13 @@ boss-balance:
 # Cada integrante de un grupo paga su entrada. Si el jefe no se puede crear,
 # Odysseia reembolsa todos los cobros de esa sesión.
 boss-arena:
-  # Mundo fijo superplano. Si ya existe un mundo no plano con este nombre, no se borra en vivo.
-  # Debe recrearse manualmente solo con el servidor detenido y sin jugadores dentro.
+  # Mundo explícito de arenas. Nunca se reutiliza boss_arena ni se crea en silencio.
+  world-name: drakes_bosses
+  allow-auto-create: false
+  # Paper 1.21.11 expone mundos Multiverse planos como WorldType.DEFAULT.
+  # La seguridad depende del nombre exclusivo, carga explícita y límite, no de
+  # esa etiqueta API que impediría abrir todas las arenas válidas.
+  require-flat: false
   world-border-size: 4096
   entry-fees:
     # Cada integrante de un grupo paga esta entrada. Los valores son
