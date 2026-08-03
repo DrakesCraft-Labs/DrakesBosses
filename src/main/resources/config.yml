@@ -22,7 +22,10 @@ integrations:
 boss-arena:
   world-name: drakes_bosses
   allow-auto-create: false
-  require-flat: true
+  # Paper 1.21.11 expone mundos Multiverse planos como WorldType.DEFAULT.
+  # La seguridad depende del nombre exclusivo, carga explícita y límite, no de
+  # esa etiqueta API que impediría abrir todas las arenas válidas.
+  require-flat: false
   world-border-size: 4096
 
 # Telemetría operativa hacia Star. No interviene en compras ni almacena datos de jugadores.
