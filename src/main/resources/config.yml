@@ -1,0 +1,1916 @@
+# ╔══════════════════════════════════════════════╗
+# ║           DrakesBosses — config.yml          ║
+# ╚══════════════════════════════════════════════╝
+
+# Habilitar envio de eventos a Discord
+discord:
+  enabled: true
+  # Canal de actualizaciones: solo estado operativo y eventos relevantes del servidor.
+  webhook-url: "REPLACE_ME"
+  # Canal de moderación: baneos, expulsiones reales y accesos bloqueados.
+  # Nunca hace fallback al canal de actualizaciones.
+  webhook-moderation-url: "REPLACE_ME"
+
+# Integraciones opcionales. Odysseia sigue funcionando aunque el plugin externo no exista.
+integrations:
+  diosesdrakes:
+    boss-rewards:
+      enabled: true
+
+# El mundo se prepara y valida durante la migración. Por defecto el plugin no
+# crea mundos: una arena inválida rechaza la entrada antes de cobrar.
+boss-arena:
+  world-name: drakes_bosses
+  allow-auto-create: false
+  require-flat: true
+  world-border-size: 4096
+
+# Telemetría operativa hacia Star. No interviene en compras ni almacena datos de jugadores.
+star-monitor:
+  enabled: false
+  endpoint: "https://web.drakescraft.cl/api/odysseia/events"
+  signing-secret: "REPLACE_ME"
+  # Archivo privado dentro de plugins/Odysseia; no versionar ni copiar al repositorio.
+  signing-secret-file: "star-monitor.secret"
+  heartbeat-interval-seconds: 60
+
+# ─────────────────────────────────────────────
+# Eventos de terror limitados a mundos explícitos con jugadores presentes.
+horror-night:
+  enabled: true
+  worlds: [world]
+
+# ─────────────────────────────────────────────
+# Borde visual de ProtectionStones. Solo usa paquetes de bloque al cliente.
+protection-border:
+  enabled: true
+  material: LIGHT_BLUE_STAINED_GLASS
+  max-blocks: 2048
+  staff-permission: odysseia.protection.border
+
+# ─────────────────────────────────────────────
+#  Ciclo de Prefijos del Propietario (Owner)
+# ─────────────────────────────────────────────
+owner-cycle:
+  # Habilitar el placeholder de PAPI %odysseia_owner_prefix%
+  enabled: true
+  # Intervalo para alternar visualmente (minutos)
+  interval-minutes: 30
+  # Prefijos a alternar para odiseo
+  odiseo:
+    prefix-a: "&8✠ &6&lᴏᴅɪsᴇᴏ &8✦ &6&o"
+    prefix-b: "&8✠ &4&lᴅᴜᴇñᴏ &8✦ &4"
+  # Prefijos a alternar para penelope
+  penelope:
+    prefix-a: "&d✦ &d&lᴘᴇɴᴇʟᴏᴘᴇ &8✦ &d"
+    prefix-b: "&d✦ &d&lᴅᴜᴇñᴀ &8✦ &d"
+
+# ─────────────────────────────────────────────
+#  Efectos de Armadura de Rangos
+# ─────────────────────────────────────────────
+# Se aplican si el jugador tiene el set completo y el permiso correspondiente
+armor-effects:
+  refresh-interval-seconds: 30
+  effect-duration-seconds: 180
+
+  # Hercules (VIP 1) - requiere drakes.kit.hercules y full diamante
+  hercules:
+    speed: 1
+    resistance: 1
+
+  # Hestia (VIP 2) - requiere drakes.kit.hestia y full diamante
+  hestia:
+    speed: 2
+    health-boost: 1
+    saturation: true
+
+  # Hermes (VIP 3) - requiere drakes.kit.hermes y full diamante
+  hermes:
+    speed: 4
+    health-boost: 1
+    saturation: true
+
+  # Hefesto (VIP 4) - requiere drakes.kit.hefesto y full netherite
+  hefesto:
+    speed: 2
+    health-boost: 2
+    fire-resistance: true
+    saturation: true
+
+  # Artemisa (VIP 5) - requiere drakes.kit.artemisa y full netherite
+  artemisa:
+    speed: 3
+    health-boost: 2
+    strength: 1
+    saturation: true
+
+  # Afrodita (VIP 6) - requiere drakes.kit.afrodita y full netherite
+  afrodita:
+    speed: 3
+    health-boost: 3
+    strength: 1
+    regeneration: 1
+    saturation: true
+
+  # Zeus (VIP 7) - requiere drakes.kit.zeus y full netherite
+  zeus:
+    speed: 4
+    health-boost: 4
+    strength: 2
+    resistance: 1
+    saturation: true
+
+  # Oldschool (Veteranos 5+ años) - requiere drakes.kit.oldschool
+  oldschool:
+    speed: 3
+    health-boost: 2
+    fire-resistance: true
+    saturation: true
+    resistance: 1
+
+# ─────────────────────────────────────────────
+#  Reliquias Personalizadas
+# ─────────────────────────────────────────────
+papa-de-mar:
+  # Valores al consumir la Papa de mar
+  food-restored: 1
+  saturation-restored: 8.4
+  # Item entregado por el scheduler y por /papademar.
+  item:
+    material: BAKED_POTATO
+    name: "&6&l✦ Papa de mar ✦"
+    lore:
+      - "&7Relicario legendario de Drakes."
+      - "&7Ha cruzado temporadas, guerras y treguas."
+      - "&7A veces se canjeó por llaves ante aldeanos."
+      - "&7A veces fue comida, spam y pura leyenda."
+      - "&8Dicen que con esta papa terminó una guerra."
+      - "&8Y que quien la porta carga historia en las manos."
+    # Formato: ENCHANTMENT:LEVEL. Dejar [] para no encantar.
+    enchantments:
+      - VANISHING_CURSE:1
+  delivery:
+    enabled: true
+    # Tiempo de entrega automática a todos los jugadores (minutos).
+    interval-minutes: 15
+    message: "&eRecibiste la &6&l✦ Papa de mar ✦&e."
+  # Compatibilidad con configs viejas; si existe delivery.interval-minutes se usa primero.
+  delivery-interval-minutes: 15
+
+# ─────────────────────────────────────────────
+#  Kit de Inicio (StarterKit)
+# ─────────────────────────────────────────────
+starter-kit:
+  enabled: true
+  # Entrega exclusivamente kits.inicial a cuentas nuevas. Espera a que nLogin
+  # termine; si el inventario está lleno, reintenta sin duplicar objetos.
+  kit: inicial
+  delay-ticks: 400
+  max-retries: 3
+  retry-delay-ticks: 200
+  welcome-message: "&8[&6&lDrakesCraft&8] &eKit de inicio entregado. ¡Bienvenido a la Odisea!"
+
+# ─────────────────────────────────────────────
+#  ChatGames Scheduler
+# ─────────────────────────────────────────────
+chatgames:
+  # Odysseia owns this schedule. Set ChatGames' external automatic-games to false
+  # to avoid overlapping events after the next restart.
+  enabled: true
+  timezone: "America/Santiago"
+  minimum-players: 2
+  min-interval-minutes: 12
+  max-interval-minutes: 18
+  timeout-seconds: 35
+  # The sequence resets every calendar month: week 1 math, week 2 runes,
+  # week 3 trivia, week 4 reflexes and week 5 cartographer codes.
+  reward-commands:
+    - "minecraft:xp add {player} 150 points"
+    - "eco give {player} 500"
+
+# ─────────────────────────────────────────────
+#  Leñador Loco
+# ─────────────────────────────────────────────
+lenador-loco:
+  enabled: true
+  target-name: "Leñador Loco"
+  check-interval-seconds: 5
+  effects:
+    - type: RESISTANCE
+      duration-seconds: 12
+      amplifier: 1
+    - type: REGENERATION
+      duration-seconds: 12
+      amplifier: 1
+    - type: STRENGTH
+      duration-seconds: 12
+      amplifier: 0
+    - type: SPEED
+      duration-seconds: 12
+      amplifier: 0
+
+# ─────────────────────────────────────────────
+#  Presencia y Eventos (DrakesLabPresence)
+# ─────────────────────────────────────────────
+presence:
+  enabled: true
+  # Identificador legible en mensajes (opcional, por defecto el del servidor)
+  server-label: ""
+  # Los heartbeats no se publican en Actualizaciones: Star Monitor es la fuente operativa.
+  heartbeat:
+    enabled: false
+    interval-minutes: 15
+  # Segundos de espera tras reload/arranque antes del primer POST
+  startup-delay-seconds: 60
+  # Eventos especificos a enviar
+  events:
+    server-startup: true
+    server-shutdown: true
+    player-join: false
+    player-quit: false
+    player-death: false
+    advancement: false
+    rate-limit-per-minute: 12
+
+# Los reinicios programados pertenecen a Star y Pterodactyl. Odysseia solo
+# protege inventarios durante la ventana final iniciada por el supervisor.
+
+# ─────────────────────────────────────────────
+#  Alertador Diario de Caducidad de Rangos VIP
+# ─────────────────────────────────────────────
+vipalerts:
+  enabled: true
+  # Umbral de días restantes para destacar advertencia [PRÓXIMO A VENCER]
+  warning-threshold-days: 3
+
+# ─────────────────────────────────────────────
+#  Entrega Automática de Tienda (StoreManager)
+# ─────────────────────────────────────────────
+store:
+  enabled: true
+  # URL base de la API de la tienda (Fastify)
+  api-url: "https://web.drakescraft.cl/api/store"
+  # Clave API secreta (debe coincidir con STORE_API_KEY en el .env)
+  api-key: "REPLACE_ME_STORE_API_KEY"
+  # Frecuencia de verificación en segundos
+  poll-interval-seconds: 60
+  # Compatibilidad con el flujo antiguo. Purchase Engine usa purchase-engine.announcements.
+  announcement-webhook-url: "REPLACE_ME_LEGACY_WEBHOOK"
+  # Mensaje de felicitaciones en el chat in-game (Soporta códigos de color '&')
+  chat-announcement: "&6&l⚡ &e¡Felicidades &b{player} &eha adquirido &a{product} &een la tienda! ¡Gracias por apoyar al servidor! &6&l⚡"
+  # Mensaje del webhook de Discord
+  discord-announcement: "🎉 **¡Felicidades {player} ha comprado {product} en el servidor! ¡Gracias por mantener el servidor vivo!** 🎉"
+  # Sonido global emitido en el servidor ante compras
+  global-sound:
+    enabled: true
+    sound: "UI_TOAST_CHALLENGE_COMPLETE"
+
+  # Comandos a ejecutar por cada producto de la tienda
+  # {player} se reemplazará por el nick exacto del jugador
+  packages:
+    hercules:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp hercules 30d accumulate"
+        - "eco give {player} 25000"
+        - "kit hercules {player}"
+        - "ps give viphercules {player} 1"
+        - "msg {player} &a¡Gracias por comprar el rango Hércules!"
+    hestia:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp hestia 30d accumulate"
+        - "eco give {player} 50000"
+        - "kit hestia {player}"
+        - "ps give viphestia {player} 1"
+        - "msg {player} &a¡Gracias por comprar el rango Hestia!"
+    hermes:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp hermes 30d accumulate"
+        - "eco give {player} 100000"
+        - "kit hermes {player}"
+        - "ps give viphermes {player} 1"
+        - "msg {player} &a¡Gracias por comprar el rango Hermes!"
+    hefesto:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp hefesto 30d accumulate"
+        - "eco give {player} 175000"
+        - "kit hefesto {player}"
+        - "ps give viphefesto {player} 1"
+        - "msg {player} &a¡Gracias por comprar el rango Hefesto!"
+    artemisa:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp artemisa 30d accumulate"
+        - "eco give {player} 300000"
+        - "kit artemisa {player}"
+        - "ps give vipartemisa {player} 1"
+        - "msg {player} &a¡Gracias por comprar el rango Artemisa!"
+    afrodita:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp afrodita 30d accumulate"
+        - "eco give {player} 500000"
+        - "kit afrodita {player}"
+        - "ps give vipafrodita {player} 1"
+        - "msg {player} &a¡Gracias por comprar el rango Afrodita!"
+    zeus:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp zeus 30d accumulate"
+        - "eco give {player} 1000000"
+        - "kit zeus {player}"
+        - "ps give vipzeus {player} 1"
+        - "msg {player} &a¡Gracias por comprar el rango Zeus!"
+    # Subrangos (Categoría 2)
+    minero:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp minero 30d accumulate"
+        - "kit minero {player}"
+        - "msg {player} &a¡Gracias por adquirir el rol de Minero!"
+    cazador:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp cazador 30d accumulate"
+        - "kit cazador {player}"
+        - "msg {player} &a¡Gracias por adquirir el rol de Cazador!"
+    constructor:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp constructor 30d accumulate"
+        - "kit constructor {player}"
+        - "msg {player} &a¡Gracias por adquirir el rol de Constructor!"
+    lenador:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp lenador 30d accumulate"
+        - "kit lenador {player}"
+        - "msg {player} &a¡Gracias por adquirir el rol de Leñador!"
+    alquimista:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp alquimista 30d accumulate"
+        - "kit alquimista {player}"
+        - "msg {player} &a¡Gracias por adquirir el rol de Alquimista!"
+    nomada:
+      require-online: true
+      commands:
+        - "lp user {player} parent addtemp nomada 30d accumulate"
+        - "kit nomada {player}"
+        - "msg {player} &a¡Gracias por adquirir el rol de Nómada!"
+    # Dragmas (Categoría 3 de la tienda web - 3 paquetes definidos)
+    dragmas-saco:
+      require-online: true
+      commands:
+        - "eco give {player} 50000"
+        - "msg {player} &a¡Recibiste tu Saco de 50,000 Dragmas!"
+    dragmas-cofre:
+      require-online: true
+      commands:
+        - "eco give {player} 250000"
+        - "msg {player} &a¡Recibiste tu Cofre de 250,000 Dragmas!"
+    dragmas-anfora:
+      require-online: true
+      commands:
+        - "eco give {player} 1000000"
+        - "msg {player} &a¡Recibiste tu Ánfora de 1,000,000 Dragmas!"
+
+# ╔══════════════════════════════════════════════╗
+# ║   Spawn natural de jefes míticos (Odysseia)  ║
+# ╚══════════════════════════════════════════════╝
+# Invoca jefes aleatorios cerca de jugadores cada cierto tiempo.
+# NO genera estructuras: solo aparece la entidad en la superficie.
+# ─────────────────────────────────────────────
+boss-balance:
+  # Escala común para todos los jefes, incluidos ataques especiales y proyectiles.
+  health-multiplier: 2.25
+  damage-multiplier: 2.10
+  movement-speed-multiplier: 1.60
+  knockback-resistance: 0.95
+  follow-range: 72.0
+  # 40 ticks = 2 segundos. Las skills internas mantienen sus propios cooldowns.
+  skill-interval-ticks: 40
+  announcement-radius: 64.0
+  dialogue-radius: 48.0
+  # Escudo cinematográfico breve al cruzar cada fase; bloquea golpes durante el telegraph.
+  phase-shield-ticks: 32
+  phase-rupture:
+    # Descarga local al cambiar de fase. No modifica bloques ni carga chunks.
+    radius: 8.0
+    damage: 6.0
+  combat-director:
+    # Ataques comunes inspirados en encuentros por fases, limitados a una tarea pendiente por jefe.
+    enabled: true
+    target-range: 44.0
+    cooldown-seconds: 9
+    telegraph-ticks: 24
+  mobility:
+    # Teletransporte táctico: sólo flanquea jugadores lejanos y nunca carga chunks.
+    enabled: true
+    target-range: 56.0
+    minimum-distance: 12.0
+    flank-distance: 4.0
+    cooldown-seconds: 7
+  rebirth:
+    # Renacen una vez al recibir daño letal. Prometeo conserva además su fénix propio.
+    bosses: [thor, ares, hades, zeus, odin, kratos, heimdall, hidra, cerbero, tifon]
+    health-percent: 0.55
+    invulnerability-seconds: 5
+  # Defensa adaptativa contra armas SF/Tinker y encantamientos de endgame.
+  # Reduce ráfagas; no borra, modifica ni bloquea ítems de jugadores.
+  adaptive-counters:
+    enabled: true
+    burst-window-seconds: 4
+    counter-cooldown-seconds: 12
+    normal:
+      max-hit-health-fraction: 0.045
+      max-burst-health-fraction: 0.20
+    high-power:
+      sharpness-threshold: 7
+      max-hit-health-fraction: 0.025
+      max-burst-health-fraction: 0.12
+
+# ─────────────────────────────────────────────
+# Arenas públicas de jefes (/bosswarp)
+# Cada integrante de un grupo paga su entrada. Si el jefe no se puede crear,
+# Odysseia reembolsa todos los cobros de esa sesión.
+boss-arena:
+  # Mundo fijo superplano. Si ya existe un mundo no plano con este nombre, no se borra en vivo.
+  # Debe recrearse manualmente solo con el servidor detenido y sin jugadores dentro.
+  world-border-size: 4096
+  entry-fees:
+    default: 500000
+    zeus: 250000
+    hades: 375000
+    tifon: 1500000
+    dragon: 2500000
+    wither_storm: 5000000
+    # Permiso opcional para pruebas administrativas sin retirar Dragmas.
+    free-permission: "drakesbosses.bosswarp.free"
+  targeted-challenges:
+    players:
+      # Pasiente. Se usa UUID para que un cambio de nick no reduzca el reto.
+      # El divisor representa vida efectiva sin sobrepasar MAX_HEALTH: x1000000
+      # significa que los golpes de jugadores bajan la vida del jefe un millón de veces menos.
+      "7ddf2641-14fb-4c1f-8499-aa5ff6c6b295":
+        name: "Pasiente"
+        health-multiplier: 1000000.0
+
+#  Purchase Engine: anuncios de compras confirmadas
+# ─────────────────────────────────────────────
+# Este endpoint es privado: el valor real vive solo en la configuración desplegada.
+purchase-engine:
+  announcements:
+    enabled: true
+    webhook-url: "REPLACE_ME_PURCHASE_WEBHOOK"
+    chat-announcement: "&6&l⚡ &e¡Felicidades &b{player} &eha adquirido &a{product} &een la tienda! ¡Gracias por apoyar al servidor! &6&l⚡"
+    discord-announcement: "🎉 **¡Felicidades {player} ha comprado {product} en el servidor! ¡Gracias por mantener el servidor vivo!** 🎉"
+    global-sound:
+      enabled: true
+      sound: "UI_TOAST_CHALLENGE_COMPLETE"
+
+natural-spawn:
+  # Activar/desactivar el spawn natural automático
+  enabled: false
+  # Cada cuántos segundos se hace un "intento" de spawn (mínimo 60)
+  interval-seconds: 1800
+  # Probabilidad (0.0 - 1.0) de que el intento tenga éxito
+  chance: 0.25
+  # Máximo de jefes naturales vivos al mismo tiempo
+  max-active: 2
+  # Distancia (en bloques) a la que aparece respecto al jugador elegido
+  min-distance: 40
+  max-distance: 80
+  # Mundos permitidos (vacío = todos los mundos)
+  worlds: []
+  # Jefes elegibles (vacío = todos). Ej: [thor, hidra, cerbero, tifon]
+  bosses: []
+
+# ─────────────────────────────────────────────
+#  Luna de Sangre: hordas controladas de Odysseia
+# ─────────────────────────────────────────────
+# Los zombies de este evento sólo rompen los bloques listados y JAMÁS dentro de
+# ProtectionStones. Si la API de protecciones falla, la rotura queda desactivada.
+blood-moon:
+  enabled: true
+  chance: 0.18
+  worlds: [world]
+  waves: 3
+  wave-interval-seconds: 45
+  zombies-per-player: 5
+  max-zombies-per-wave: 18
+  final-boss:
+    enabled: true
+    id: dios_corrupto
+  zombie-block-breaking:
+    enabled: true
+    # Sin cofres, máquinas, estaciones ni bloques de Slimefun: sólo terreno blando.
+    allowed-materials:
+      - DIRT
+      - COARSE_DIRT
+      - ROOTED_DIRT
+      - GRASS_BLOCK
+      - SAND
+      - RED_SAND
+      - GRAVEL
+      - CLAY
+      - SNOW
+      - OAK_LEAVES
+      - SPRUCE_LEAVES
+      - BIRCH_LEAVES
+      - JUNGLE_LEAVES
+      - ACACIA_LEAVES
+      - DARK_OAK_LEAVES
+      - MANGROVE_LEAVES
+      - CHERRY_LEAVES
+      - AZALEA_LEAVES
+      - FLOWERING_AZALEA_LEAVES
+  slimefun-loot:
+    # Un sólo drop aleatorio por zombie, con probabilidad baja.
+    chance: 0.10
+    item-ids: [IRON_DUST, COPPER_DUST, GOLD_DUST, ZINC_DUST, ALUMINUM_DUST]
+
+# ─────────────────────────────────────────────
+#  Recompensas de jefes míticos
+# ─────────────────────────────────────────────
+# Los dominios se activan sólo con /boss spawn; spawns naturales y Horror Night no los crean.
+# Son puramente visuales: nunca reemplazan bloques, ignoran claims y se limpian al morir el jefe.
+boss-domains:
+  enabled: true
+  radius: 26
+  height: 16
+  duration-seconds: 900
+
+# Jax usa un Ravager invisible como núcleo de combate y una escultura de displays como cuerpo.
+# Es manual por diseño: /boss spawn jax. Sus ataques no alteran bloques ni claims.
+bosses:
+  jax:
+    enabled: true
+    health: 1350.0
+    core-damage: 16.0
+    target-range: 28.0
+    charge-speed: 1.05
+    impact-radius: 4.0
+    impact-damage: 11.0
+
+# Cada muerte concede como máximo un premio ponderado por daño: una reliquia
+# propia, un material SF seguro o ninguno. Nunca se sueltan items al mundo.
+boss-loot:
+  enabled: true
+  experience: 750
+  boss-relic-chance: 0.30
+  slimefun-reward-chance: 0.60
+  slimefun-rewards:
+    minimum-amount: 1
+    maximum-amount: 3
+    # Lista blanca: sin Infinity, Supreme, radioactivos, armas ni armaduras.
+    item-ids:
+      - MAGICAL_LUMP_1
+      - MAGICAL_LUMP_2
+      - SULFUR
+      - COPPER_DUST
+      - GOLD_DUST
+      - IRON_DUST
+      - ALUMINUM_DUST
+      - ZINC_DUST
+      - TIN_DUST
+      - MAGNESIUM_DUST
+      - SILVER_DUST
+      - DAMASCUS_STEEL
+      - REINFORCED_ALLOY_INGOT
+      - CORINTHIAN_BRONZE_INGOT
+      - HARDENED_METAL_INGOT
+      - REDSTONE_ALLOY
+      - SYNTHETIC_EMERALD
+      - SIFTED_ORE
+      - STRANGE_NETHER_DUST
+      - ENDER_LUMP
+  contributors:
+    # Daño mínimo y porcentaje mínimo del daño total para entrar al sorteo.
+    minimum-damage: 25.0
+    minimum-share: 0.02
+  bosses:
+    circe:
+      drops:
+        circe_staff: 0.50
+    polifemo:
+      drops:
+        polifemo_club: 0.50
+    dios_corrupto:
+      drops:
+        corrupted_god_blade: 0.50
+    thor:
+      drops:
+        mjolnir: 0.50
+    ares:
+      drops:
+        ares_blade: 0.50
+        ares_shield: 0.50
+    hades:
+      drops:
+        hades_scythe: 0.50
+    poseidon:
+      drops:
+        poseidon_trident: 0.50
+    zeus:
+      drops:
+        zeus_mace: 0.50
+    loki:
+      drops:
+        loki_dagger: 0.50
+        loki_scepter: 0.50
+    odin:
+      drops:
+        odin_spear: 0.50
+        odin_helmet: 0.50
+    kratos:
+      drops:
+        kratos_blade: 0.50
+        leviathan_axe: 0.50
+    heimdall:
+      drops:
+        gjallarhorn: 0.50
+        bifrost_wings: 0.50
+    hidra:
+      drops:
+        hydra_fang: 0.50
+        hydra_scale: 0.50
+    cerbero:
+      drops:
+        cerbero_hide: 0.50
+    artemisa:
+      drops:
+        artemis_bow: 0.50
+    tifon:
+      drops:
+        tifon_claw: 0.50
+        tifon_chest: 0.50
+    prometeo:
+      drops:
+        prometeo_flame: 0.50
+    coloso_end:
+      drops:
+        coloso_core: 0.50
+    wither_storm:
+      drops:
+        storm_heart: 0.50
+    dragon_ancestral:
+      drops:
+        dragon_heart: 0.50
+    ra:
+      drops:
+        ra_sun: 0.50
+    isis:
+      drops:
+        isis_feather: 0.50
+    anubis:
+      drops:
+        anubis_seal: 0.50
+    set:
+      drops:
+        set_shard: 0.50
+    jax:
+      drops:
+        jax_fragment: 0.50
+
+# ─────────────────────────────────────────────
+#  Sistema de Kits VIP e Integraciones (Slimefun)
+# ─────────────────────────────────────────────
+# Odysseia no entrega ítems Cheat. Slimefun Core es la única autoridad de
+# allowlist, cuota persistente y marcado; esta sección solo detecta candidatos
+# legacy para /odysseia sfmaster audit <jugador>.
+sfmaster-audit:
+  approved-addons:
+    - "SLIMEFUN"
+    - "CULTIVATION"
+    - "NETWORKS"
+  blocked-addons:
+    - "SUPREME"
+    - "INFINITYEXPANSION"
+  blocked-id-prefixes:
+    - "SUPREME_"
+    - "INFINITY_"
+  blocked-id-fragments:
+    - "_SWORD"
+    - "_PICKAXE"
+    - "_AXE"
+    - "_SHOVEL"
+    - "_HOE"
+    - "_HELMET"
+    - "_CHESTPLATE"
+    - "_LEGGINGS"
+    - "_BOOTS"
+    - "_ARMOR"
+    - "_BOW"
+    - "_CROSSBOW"
+    - "_TRIDENT"
+    - "_STAFF"
+    - "_HAMMER"
+    - "_DRILL"
+    - "_MULTITOOL"
+    - "_SHIELD"
+    - "_ELYTRA"
+  blocked-materials:
+    - "DIAMOND"
+    - "DIAMOND_BLOCK"
+    - "EMERALD"
+    - "EMERALD_BLOCK"
+    - "NETHERITE_INGOT"
+    - "NETHERITE_BLOCK"
+    - "ANCIENT_DEBRIS"
+
+chat-filter:
+  enabled: true
+  words:
+    - "ctm"
+    - "conchetumare"
+    - "conchatumare"
+    - "culiao"
+    - "hijo de puta"
+    - "hdp"
+    - "pelotudo"
+    - "puta madre"
+    - "mierda"
+    - "maricon"
+    - "negro de mierda"
+    - "mogolico"
+
+# Traducción automática por locale; reemplaza drakes_translation.dsc.
+translation:
+  enabled: true
+  # nLogin suele completar la autenticación entre 5 y 15 segundos.
+  join-delay-ticks: 400
+
+# Guardia de automatizaciones vanilla. No inspecciona clics ni bloquea autoclicker.
+automation-guard:
+  enabled: true
+  redstone:
+    enabled: true
+    # Los límites se aplican sólo si existe una estructura vanilla de reloj.
+    fast-window-seconds: 10
+    fast-pulse-limit: 40
+    long-window-seconds: 120
+    long-pulse-limit: 180
+    minimum-components: 3
+    minimum-timing-components: 2
+    # Los dos primeros excesos sólo pausan el circuito; la tercera reincidencia
+    # dentro de diez minutos desarma un componente temporizador.
+    violations-before-break: 3
+    violation-window-seconds: 600
+    suppression-seconds: 5
+  afk:
+    enabled: true
+    inactivity-seconds: 300
+    minimum-displacement: 4.0
+    notification-cooldown-seconds: 30
+
+# ─────────────────────────────────────────────
+#  Tienda nativa y ProtectionStones
+# ─────────────────────────────────────────────
+# El catálogo usa las claves lógicas de aliases. Solo esta sección conoce
+# los aliases reales de ProtectionStones y su sintaxis de entrega.
+protectionstones:
+  give-command: "ps give {alias} {player} {amount}"
+  aliases:
+    starter: novato
+    hercules: viphercules
+    hestia: viphestia
+    hermes: viphermes
+    hefesto: viphefesto
+    artemisa: vipartemisa
+    afrodita: vipafrodita
+    zeus: vipzeus
+    protection_177: viphefesto
+    protection_481: vipzeus
+
+# Hub único de comercio. Las categorías se navegan con clic, sin comandos extra.
+# Cada destino se despacha como jugador; no se elevan permisos desde el menú.
+native-menus:
+  shop:
+    enabled: true
+    title: "&6⚡ &lMercado &8· &fDrakesCraft &6⚡"
+    rows: 6
+    entries:
+      # --- FILA 1: MERCADO Y COMERCIO ---
+      protecciones:
+        slot: 10
+        material: LODESTONE
+        name: "&f&lPolis &8· &7Protecciones"
+        lore:
+          - "&7Bloques de claim para tu territorio."
+          - "&8Desde Khora hasta Olimpo."
+          - ""
+          - "&e➤ Clic para abrir &f/tiendaprot"
+        commands: ["tiendaprot"]
+      subastas:
+        slot: 12
+        material: SUNFLOWER
+        name: "&e&lSubastas de Jugadores"
+        lore:
+          - "&7Mercado global de la comunidad."
+          - "&8Vende y compra ítems a otros usuarios."
+          - ""
+          - "&e➤ Clic para abrir &f/ca"
+        commands: ["ca"]
+      slimefun:
+        slot: 14
+        material: AMETHYST_SHARD
+        name: "&b&lMercado Slimefun"
+        lore:
+          - "&7Mercado de precios dinámicos."
+          - "&8Lingotes, polvos y recursos."
+          - ""
+          - "&e➤ Clic para abrir &f/sfmercado"
+        commands: ["sfmercado"]
+      warps:
+        slot: 16
+        material: COMPASS
+        name: "&a&lPlayer Warps"
+        lore:
+          - "&7Explora tiendas y bases públicas."
+          - "&8Crea tu propio punto de venta."
+          - ""
+          - "&e➤ Clic para abrir &f/pw"
+        commands: ["pw"]
+
+      # --- FILA 2: PROGRESO Y RECURSOS ---
+      materiales:
+        slot: 28
+        material: LIME_CONCRETE
+        name: "&a&lBloques y Construcción"
+        lore:
+          - "&7Materiales decorativos y construcción."
+          - "&8Concreto, terracota, cristal y madera."
+          - ""
+          - "&e➤ Clic para abrir &f/ultimateshop"
+        commands: ["ultimateshop"]
+      trabajos:
+        slot: 30
+        material: GOLDEN_PICKAXE
+        name: "&6&lTrabajos &8· &7Jobs"
+        lore:
+          - "&7Gana Dragmas trabajando en el servidor."
+          - "&8Elige hasta 3 empleos simultáneos."
+          - ""
+          - "&e➤ Clic para abrir &f/jobs browse"
+        commands: ["jobs browse"]
+      habilidades:
+        slot: 32
+        material: EXPERIENCE_BOTTLE
+        name: "&c&lHabilidades &8· &7AuraSkills"
+        lore:
+          - "&7Sube estadísticas de minería y combate."
+          - "&8Aumenta tu vida y fuerza pasiva."
+          - ""
+          - "&e➤ Clic para abrir &f/skills"
+        commands: ["skills"]
+      encantos:
+        slot: 34
+        material: ENCHANTING_TABLE
+        name: "&d&lEncantamientos Únicos"
+        lore:
+          - "&7Encantamientos especiales del servidor."
+          - "&8Desbloquea habilidades en tu equipo."
+          - ""
+          - "&e➤ Clic para abrir &f/eenchants"
+        commands: ["eenchants"]
+
+      # --- FILA 3: SUSCRIPCIONES Y VIP ---
+      kits:
+        slot: 49
+        material: DIAMOND_CHESTPLATE
+        name: "&b&lKits & Rangos VIP"
+        lore:
+          - "&7Revisa y reclama tus kits periódicos."
+          - "&8Beneficios de rangos y donantes."
+          - ""
+          - "&e➤ Clic para abrir &f/kitsvip"
+        commands: ["odysseia:open-kits"]
+  kits:
+    title: "&8DrakesCraft &7| &6Kits VIP"
+    rows: 3
+    order: [hercules, hestia, hermes, hefesto, artemisa, afrodita, zeus, oldschool]
+    icons:
+      hercules: {material: DIAMOND_CHESTPLATE, name: "&6&lHércules"}
+      hestia: {material: DIAMOND_CHESTPLATE, name: "&c&lHestia"}
+      hermes: {material: DIAMOND_BOOTS, name: "&b&lHermes"}
+      hefesto: {material: NETHERITE_CHESTPLATE, name: "&6&lHefesto"}
+      artemisa: {material: BOW, name: "&a&lArtemisa"}
+      afrodita: {material: GOLDEN_APPLE, name: "&d&lAfrodita"}
+      zeus: {material: NETHERITE_SWORD, name: "&e&lZeus"}
+      oldschool: {material: BOOK, name: "&7&lOldschool"}
+
+# Permite definir kits personalizados con cooldowns, comandos, dinero de Vault,
+# ítems vanilla de minecraft (con encantamientos y soulbound) e ítems de Slimefun por ID.
+# Cooldowns soportados: "-1" (único reclamo por vida), "30d" (días), "24h" (horas), "30m" (minutos).
+kits:
+  # Reclamación única. Sustituye el bloque starter-kit heredado, que no tenía listener activo.
+  inicial:
+    cooldown: "-1"
+    permission: "odysseia.kit.inicial"
+    protection-alias: starter
+    protection-amount: 1
+    vanilla-items:
+      - material: DIAMOND_HELMET
+        name: "&b&lCasco del Guardián Inicial"
+        enchantments: {protection: 6, thorns: 3, unbreaking: 10, mending: 1, respiration: 3, aqua_affinity: 1}
+      - material: DIAMOND_CHESTPLATE
+        name: "&b&lPechera del Guardián Inicial"
+        enchantments: {protection: 6, thorns: 3, unbreaking: 10, mending: 1}
+      - material: DIAMOND_LEGGINGS
+        name: "&b&lGrebas del Guardián Inicial"
+        enchantments: {protection: 6, thorns: 3, unbreaking: 10, mending: 1}
+      - material: DIAMOND_BOOTS
+        name: "&b&lBotas del Guardián Inicial"
+        enchantments: {protection: 6, thorns: 3, unbreaking: 10, mending: 1, feather_falling: 4, depth_strider: 3}
+      - material: DIAMOND_SWORD
+        name: "&b&lEspada del Guardia Inicial"
+        enchantments: {sharpness: 6, looting: 3, fire_aspect: 2, knockback: 2, sweeping_edge: 3, unbreaking: 10, mending: 1}
+      - material: DIAMOND_PICKAXE
+        name: "&b&lPico del Prospecto Divino"
+        enchantments: {efficiency: 6, fortune: 3, unbreaking: 10, mending: 1}
+      - material: DIAMOND_AXE
+        name: "&b&lHacha del Forjador Sagrado"
+        enchantments: {efficiency: 6, sharpness: 6, unbreaking: 10, mending: 1}
+      - material: DIAMOND_SHOVEL
+        name: "&b&lPala del Sendero Eterno"
+        enchantments: {efficiency: 6, silk_touch: 1, unbreaking: 10, mending: 1}
+      - material: SHIELD
+        name: "&bEscudo de la Polis"
+        enchantments: {unbreaking: 10, mending: 1}
+      - material: GOLDEN_CARROT
+        amount: 24
+      - material: COOKED_BEEF
+        amount: 32
+      - material: TORCH
+        amount: 64
+      - material: WRITTEN_BOOK
+        book-title: "&6Guía de DrakesCraft"
+        author: "&eStaff DrakesCraft"
+        pages:
+          - "&6&lDrakesCraft\n&0Survival tecnológico para Java y Bedrock.\n\n&0Web: &9drakescraft.cl\n&0Servidor: &9mc.drakescraft.cl"
+          - "&6&lPrimeros pasos\n\n&0/spawn\n&0/sethome y /home\n&0/tpa y /tpaccept\n&0/rtp\n&0/kit inicial\n&0/tienda"
+          - "&6&lSlimefun\n\n&0/sf guide abre la guía.\n&0/sf search busca recetas.\n\n&4No abuses bugs, dupes ni mecanismos que dañen los TPS."
+          - "&6&lEconomía\n\n&0/bal y /pay\n&0/bank\n&0/tienda\n&0/ca para subastas\n&0/pwarp para comercios de jugadores."
+          - "&6&lProtecciones\n\n&0Coloca tu ProtectionStone.\n&0/ps add <jugador>\n&0/ps remove <jugador>\n&0/ps home\n&0/ps list"
+          - "&6&lAyuda\n\n&0Usa /discord para soporte y anuncios.\n&0Los rangos VIP duran 30 días.\n\n&2Gracias por jugar en DrakesCraft."
+
+  # ── Kit de reconocimiento Oldschool (Veteranos 5+ Años) ────
+  oldschool:
+    cooldown: "30d"
+    permission: "drakes.kit.oldschool"
+    money: 100000
+    vanilla-items:
+      - material: NETHERITE_HELMET
+        amount: 1
+        name: "&8[&7Veterano 5+ Años&8] &7&lCasco del Fundador Oldschool"
+        lore:
+          - "&7Emblema legendario de los veteranos de DrakesCraft"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 10
+          unbreaking: 6
+          respiration: 3
+          aqua_affinity: 1
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_CHESTPLATE
+        amount: 1
+        name: "&8[&7Veterano 5+ Años&8] &7&lPechera del Fundador Oldschool"
+        lore:
+          - "&7Protección ancestral forjada en la era clásica"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 10
+          unbreaking: 6
+          thorns: 3
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_LEGGINGS
+        amount: 1
+        name: "&8[&7Veterano 5+ Años&8] &7&lGrebas del Fundador Oldschool"
+        lore:
+          - "&7Resistencia de cinco años de batallas"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 10
+          unbreaking: 6
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_BOOTS
+        amount: 1
+        name: "&8[&7Veterano 5+ Años&8] &7&lBotas Aladas Oldschool"
+        lore:
+          - "&7Paso firme sobre los cimientos del servidor"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 10
+          unbreaking: 6
+          feather_falling: 8
+          depth_strider: 3
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_SWORD
+        amount: 1
+        name: "&8[&7Veterano 5+ Años&8] &7&lEspada Reliquia Oldschool"
+        lore:
+          - "&8✦ Filo del Caos Clásico"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          sharpness: 11
+          looting: 5
+          fire_aspect: 2
+          sweeping_edge: 3
+          unbreaking: 6
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_PICKAXE
+        amount: 1
+        name: "&8[&7Veterano 5+ Años&8] &7&lPico del Fundador Oldschool"
+        enchantments:
+          efficiency: 10
+          fortune: 6
+          unbreaking: 6
+          mending: 1
+      - material: NETHERITE_AXE
+        amount: 1
+        name: "&8[&7Veterano 5+ Años&8] &7&lHacha Ancestral Oldschool"
+        enchantments:
+          efficiency: 10
+          sharpness: 8
+          unbreaking: 6
+          mending: 1
+      - material: SHIELD
+        amount: 1
+        name: "&8[&7Veterano 5+ Años&8] &7&lEscudo Legendario Oldschool"
+        enchantments:
+          unbreaking: 6
+          mending: 1
+      - material: GOLDEN_CARROT
+        amount: 64
+      - material: COOKED_BEEF
+        amount: 64
+      - material: GOLDEN_APPLE
+        amount: 16
+      - material: ENDER_PEARL
+        amount: 16
+      - material: TOTEM_OF_UNDYING
+        amount: 2
+
+  # ── Kit VIP Hércules ───────────────────────────
+  hercules:
+    cooldown: "30d"
+    permission: "drakes.kit.hercules"
+    protection-alias: hercules
+    protection-amount: 1
+    money: 35000
+    vanilla-items:
+      - material: DIAMOND_HELMET
+        amount: 1
+        name: "&6&lCasco de Hércules"
+        lore:
+          - "&7Protección de la fuerza bruta"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 9
+          unbreaking: 5
+          mending: 1
+        soulbound: true
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        name: "&6&lPechera de Hércules"
+        lore:
+          - "&7Protección de la fuerza bruta"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 9
+          unbreaking: 5
+          mending: 1
+        soulbound: true
+      - material: DIAMOND_LEGGINGS
+        amount: 1
+        name: "&6&lPantalones de Hércules"
+        lore:
+          - "&7Protección de la fuerza bruta"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 9
+          unbreaking: 5
+          mending: 1
+        soulbound: true
+      - material: DIAMOND_BOOTS
+        amount: 1
+        name: "&6&lBotas de Hércules"
+        lore:
+          - "&7Protección de la fuerza bruta"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 9
+          unbreaking: 5
+          mending: 1
+          feather_falling: 8
+          depth_strider: 3
+        soulbound: true
+      - material: DIAMOND_SWORD
+        amount: 1
+        name: "&6&lEspada de Hércules"
+        lore:
+          - "&8✦ Filo devastador"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          sharpness: 12
+          looting: 5
+          fire_aspect: 2
+          unbreaking: 5
+          mending: 1
+        soulbound: true
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        name: "&6&lPico de Hércules"
+        lore:
+          - "&7Poder minero de los gigantes"
+        enchantments:
+          efficiency: 10
+          fortune: 6
+          unbreaking: 5
+          mending: 1
+      - material: DIAMOND_AXE
+        amount: 1
+        name: "&6&lHacha de Hércules"
+        enchantments:
+          efficiency: 10
+          sharpness: 8
+          unbreaking: 5
+          mending: 1
+      - material: DIAMOND_SHOVEL
+        amount: 1
+        name: "&6&lPala de Hércules"
+        enchantments:
+          efficiency: 10
+          unbreaking: 5
+          mending: 1
+      - material: SHIELD
+        amount: 1
+        name: "&6&lEscudo de Hércules"
+        enchantments:
+          unbreaking: 5
+          mending: 1
+      - material: GOLDEN_CARROT
+        amount: 48
+      - material: COOKED_BEEF
+        amount: 64
+      - material: GOLDEN_APPLE
+        amount: 4
+      - material: ENDER_PEARL
+        amount: 8
+      - material: TOTEM_OF_UNDYING
+        amount: 1
+
+  # ── Kit VIP Hestia ─────────────────────────────
+  hestia:
+    cooldown: "30d"
+    permission: "drakes.kit.hestia"
+    protection-alias: hestia
+    protection-amount: 1
+    money: 75000
+    vanilla-items:
+      - material: NETHERITE_HELMET
+        amount: 1
+        name: "&e&lCasco de Hestia"
+        lore:
+          - "&7Protección del fuego del hogar"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 10
+          unbreaking: 6
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_CHESTPLATE
+        amount: 1
+        name: "&e&lPechera de Hestia"
+        lore:
+          - "&7Protección del fuego del hogar"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 10
+          unbreaking: 6
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_LEGGINGS
+        amount: 1
+        name: "&e&lPantalones de Hestia"
+        lore:
+          - "&7Protección del fuego del hogar"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 10
+          unbreaking: 6
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_BOOTS
+        amount: 1
+        name: "&e&lBotas de Hestia"
+        lore:
+          - "&7Protección del fuego del hogar"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 10
+          unbreaking: 6
+          mending: 1
+          feather_falling: 10
+          depth_strider: 3
+        soulbound: true
+      - material: NETHERITE_SWORD
+        amount: 1
+        name: "&e&lEspada de Hestia"
+        lore:
+          - "&8✦ Filo purificador"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          sharpness: 13
+          looting: 6
+          fire_aspect: 3
+          unbreaking: 6
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_PICKAXE
+        amount: 1
+        name: "&e&lPico de Hestia"
+        enchantments:
+          efficiency: 11
+          fortune: 7
+          unbreaking: 6
+          mending: 1
+      - material: NETHERITE_AXE
+        amount: 1
+        name: "&e&lHacha de Hestia"
+        enchantments:
+          efficiency: 11
+          sharpness: 9
+          unbreaking: 6
+          mending: 1
+      - material: NETHERITE_SHOVEL
+        amount: 1
+        name: "&e&lPala de Hestia"
+        enchantments:
+          efficiency: 11
+          unbreaking: 6
+          mending: 1
+      - material: SHIELD
+        amount: 1
+        name: "&e&lEscudo de Hestia"
+        enchantments:
+          unbreaking: 6
+          mending: 1
+      - material: GOLDEN_CARROT
+        amount: 64
+      - material: COOKED_BEEF
+        amount: 64
+      - material: GOLDEN_APPLE
+        amount: 8
+      - material: ENDER_PEARL
+        amount: 16
+      - material: TOTEM_OF_UNDYING
+        amount: 2
+
+  # ── Kit VIP Hermes ─────────────────────────────
+  hermes:
+    cooldown: "30d"
+    permission: "drakes.kit.hermes"
+    protection-alias: hermes
+    protection-amount: 1
+    money: 150000
+    vanilla-items:
+      - material: NETHERITE_HELMET
+        amount: 1
+        name: "&b&lCasco de Hermes"
+        lore:
+          - "&7Protección de las sandalias aladas"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 11
+          unbreaking: 7
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_CHESTPLATE
+        amount: 1
+        name: "&b&lPechera de Hermes"
+        lore:
+          - "&7Protección de las sandalias aladas"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 11
+          unbreaking: 7
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_LEGGINGS
+        amount: 1
+        name: "&b&lPantalones de Hermes"
+        lore:
+          - "&7Protección de las sandalias aladas"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 11
+          unbreaking: 7
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_BOOTS
+        amount: 1
+        name: "&b&lBotas de Hermes"
+        lore:
+          - "&7Protección de las sandalias aladas"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 11
+          unbreaking: 7
+          mending: 1
+          feather_falling: 12
+          depth_strider: 4
+        soulbound: true
+      - material: NETHERITE_SWORD
+        amount: 1
+        name: "&b&lEspada de Hermes"
+        lore:
+          - "&8✦ Filo veloz"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          sharpness: 14
+          looting: 7
+          fire_aspect: 3
+          unbreaking: 7
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_PICKAXE
+        amount: 1
+        name: "&b&lPico de Hermes"
+        enchantments:
+          efficiency: 12
+          fortune: 8
+          unbreaking: 7
+          mending: 1
+      - material: NETHERITE_AXE
+        amount: 1
+        name: "&b&lHacha de Hermes"
+        enchantments:
+          efficiency: 12
+          sharpness: 10
+          unbreaking: 7
+          mending: 1
+      - material: NETHERITE_SHOVEL
+        amount: 1
+        name: "&b&lPala de Hermes"
+        enchantments:
+          efficiency: 12
+          unbreaking: 7
+          mending: 1
+      - material: SHIELD
+        amount: 1
+        name: "&b&lEscudo de Hermes"
+        enchantments:
+          unbreaking: 7
+          mending: 1
+      - material: GOLDEN_CARROT
+        amount: 64
+      - material: COOKED_BEEF
+        amount: 64
+      - material: GOLDEN_APPLE
+        amount: 16
+      - material: ENDER_PEARL
+        amount: 16
+      - material: TOTEM_OF_UNDYING
+        amount: 3
+
+  # ── Kit VIP Hefesto ────────────────────────────
+  hefesto:
+    cooldown: "30d"
+    permission: "drakes.kit.hefesto"
+    protection-alias: hefesto
+    protection-amount: 1
+    money: 250000
+    vanilla-items:
+      - material: NETHERITE_HELMET
+        amount: 1
+        name: "&c&lCasco de Hefesto"
+        lore:
+          - "&7Protección de las forjas ardientes"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 12
+          unbreaking: 8
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_CHESTPLATE
+        amount: 1
+        name: "&c&lPechera de Hefesto"
+        lore:
+          - "&7Protección de las forjas ardientes"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 12
+          unbreaking: 8
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_LEGGINGS
+        amount: 1
+        name: "&c&lPantalones de Hefesto"
+        lore:
+          - "&7Protección de las forjas ardientes"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 12
+          unbreaking: 8
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_BOOTS
+        amount: 1
+        name: "&c&lBotas de Hefesto"
+        lore:
+          - "&7Protección de las forjas ardientes"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 12
+          unbreaking: 8
+          mending: 1
+          feather_falling: 14
+          depth_strider: 4
+        soulbound: true
+      - material: NETHERITE_SWORD
+        amount: 1
+        name: "&c&lEspada de Hefesto"
+        lore:
+          - "&8✦ Filo ígneo"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          sharpness: 15
+          looting: 8
+          fire_aspect: 4
+          unbreaking: 8
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_PICKAXE
+        amount: 1
+        name: "&c&lPico de Hefesto"
+        enchantments:
+          efficiency: 13
+          fortune: 9
+          unbreaking: 8
+          mending: 1
+      - material: NETHERITE_AXE
+        amount: 1
+        name: "&c&lHacha de Hefesto"
+        enchantments:
+          efficiency: 13
+          sharpness: 11
+          unbreaking: 8
+          mending: 1
+      - material: NETHERITE_SHOVEL
+        amount: 1
+        name: "&c&lPala de Hefesto"
+        enchantments:
+          efficiency: 13
+          unbreaking: 8
+          mending: 1
+      - material: SHIELD
+        amount: 1
+        name: "&c&lEscudo de Hefesto"
+        enchantments:
+          unbreaking: 8
+          mending: 1
+      - material: GOLDEN_CARROT
+        amount: 64
+      - material: COOKED_BEEF
+        amount: 64
+      - material: GOLDEN_APPLE
+        amount: 24
+      - material: ENDER_PEARL
+        amount: 32
+      - material: TOTEM_OF_UNDYING
+        amount: 4
+
+  # ── Kit VIP Artemisa ───────────────────────────
+  artemisa:
+    cooldown: "30d"
+    permission: "drakes.kit.artemisa"
+    protection-alias: artemisa
+    protection-amount: 1
+    money: 450000
+    vanilla-items:
+      - material: NETHERITE_HELMET
+        amount: 1
+        name: "&2&lCasco de Artemisa"
+        lore:
+          - "&7Protección de la luna"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 13
+          unbreaking: 9
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_CHESTPLATE
+        amount: 1
+        name: "&2&lPechera de Artemisa"
+        lore:
+          - "&7Protección de la luna"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 13
+          unbreaking: 9
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_LEGGINGS
+        amount: 1
+        name: "&2&lPantalones de Artemisa"
+        lore:
+          - "&7Protección de la luna"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 13
+          unbreaking: 9
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_BOOTS
+        amount: 1
+        name: "&2&lBotas de Artemisa"
+        lore:
+          - "&7Protección de la luna"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 13
+          unbreaking: 9
+          mending: 1
+          feather_falling: 16
+          depth_strider: 4
+        soulbound: true
+      - material: NETHERITE_SWORD
+        amount: 1
+        name: "&2&lEspada de Artemisa"
+        lore:
+          - "&8✦ Filo lunar"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          sharpness: 16
+          looting: 9
+          fire_aspect: 4
+          unbreaking: 9
+          mending: 1
+        soulbound: true
+      - material: BOW
+        amount: 1
+        name: "&2&lArco de la Caza Divina"
+        enchantments:
+          power: 10
+          punch: 3
+          flame: 2
+          infinity: 1
+          unbreaking: 10
+      - material: NETHERITE_PICKAXE
+        amount: 1
+        name: "&2&lPico de Artemisa"
+        enchantments:
+          efficiency: 14
+          fortune: 10
+          unbreaking: 9
+          mending: 1
+      - material: NETHERITE_AXE
+        amount: 1
+        name: "&2&lHacha de Artemisa"
+        enchantments:
+          efficiency: 14
+          sharpness: 12
+          unbreaking: 9
+          mending: 1
+      - material: NETHERITE_SHOVEL
+        amount: 1
+        name: "&2&lPala de Artemisa"
+        enchantments:
+          efficiency: 14
+          unbreaking: 9
+          mending: 1
+      - material: SHIELD
+        amount: 1
+        name: "&2&lEscudo de Artemisa"
+        enchantments:
+          unbreaking: 9
+          mending: 1
+      - material: ARROW
+        amount: 64
+      - material: GOLDEN_CARROT
+        amount: 64
+      - material: COOKED_BEEF
+        amount: 64
+      - material: GOLDEN_APPLE
+        amount: 32
+      - material: ENDER_PEARL
+        amount: 32
+      - material: TOTEM_OF_UNDYING
+        amount: 5
+
+  # ── Kit VIP Afrodita ───────────────────────────
+  afrodita:
+    cooldown: "30d"
+    permission: "drakes.kit.afrodita"
+    protection-alias: afrodita
+    protection-amount: 1
+    money: 700000
+    vanilla-items:
+      - material: NETHERITE_HELMET
+        amount: 1
+        name: "&d&lCasco de Afrodita"
+        lore:
+          - "&7Protección de la belleza"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 14
+          unbreaking: 10
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_CHESTPLATE
+        amount: 1
+        name: "&d&lPechera de Afrodita"
+        lore:
+          - "&7Protección de la belleza"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 14
+          unbreaking: 10
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_LEGGINGS
+        amount: 1
+        name: "&d&lPantalones de Afrodita"
+        lore:
+          - "&7Protección de la belleza"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 14
+          unbreaking: 10
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_BOOTS
+        amount: 1
+        name: "&d&lBotas de Afrodita"
+        lore:
+          - "&7Protección de la belleza"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 14
+          unbreaking: 10
+          mending: 1
+          feather_falling: 18
+          depth_strider: 4
+        soulbound: true
+      - material: NETHERITE_SWORD
+        amount: 1
+        name: "&d&lEspada de Afrodita"
+        lore:
+          - "&8✦ Filo cautivador"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          sharpness: 17
+          looting: 10
+          fire_aspect: 5
+          unbreaking: 10
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_PICKAXE
+        amount: 1
+        name: "&d&lPico de Afrodita"
+        enchantments:
+          efficiency: 15
+          fortune: 11
+          unbreaking: 10
+          mending: 1
+      - material: NETHERITE_AXE
+        amount: 1
+        name: "&d&lHacha de Afrodita"
+        enchantments:
+          efficiency: 15
+          sharpness: 13
+          unbreaking: 10
+          mending: 1
+      - material: NETHERITE_SHOVEL
+        amount: 1
+        name: "&d&lPala de Afrodita"
+        enchantments:
+          efficiency: 15
+          unbreaking: 10
+          mending: 1
+      - material: SHIELD
+        amount: 1
+        name: "&d&lEscudo de Afrodita"
+        enchantments:
+          unbreaking: 10
+          mending: 1
+      - material: GOLDEN_CARROT
+        amount: 64
+      - material: COOKED_BEEF
+        amount: 64
+      - material: GOLDEN_APPLE
+        amount: 48
+      - material: ENDER_PEARL
+        amount: 48
+      - material: TOTEM_OF_UNDYING
+        amount: 6
+
+  # ── Kit VIP Zeus ───────────────────────────────
+  zeus:
+    cooldown: "30d"
+    permission: "drakes.kit.zeus"
+    protection-alias: zeus
+    protection-amount: 1
+    money: 1500000
+    vanilla-items:
+      - material: NETHERITE_HELMET
+        amount: 1
+        name: "&4&lCasco de Zeus"
+        lore:
+          - "&7Protección del rey del Olimpo"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 15
+          unbreaking: 12
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_CHESTPLATE
+        amount: 1
+        name: "&4&lPechera de Zeus"
+        lore:
+          - "&7Protección del rey del Olimpo"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 15
+          unbreaking: 12
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_LEGGINGS
+        amount: 1
+        name: "&4&lPantalones de Zeus"
+        lore:
+          - "&7Protección del rey del Olimpo"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 15
+          unbreaking: 12
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_BOOTS
+        amount: 1
+        name: "&4&lBotas de Zeus"
+        lore:
+          - "&7Protección del rey del Olimpo"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          protection: 15
+          unbreaking: 12
+          mending: 1
+          feather_falling: 20
+          depth_strider: 4
+        soulbound: true
+      - material: NETHERITE_SWORD
+        amount: 1
+        name: "&4&lEspada de Zeus"
+        lore:
+          - "&8✦ Filo tormentoso (Rayo)"
+          - "&c[Vínculo Divino] Soulbound"
+        enchantments:
+          sharpness: 20
+          looting: 12
+          fire_aspect: 5
+          unbreaking: 12
+          mending: 1
+        soulbound: true
+      - material: NETHERITE_PICKAXE
+        amount: 1
+        name: "&4&lPico de Zeus"
+        enchantments:
+          efficiency: 18
+          fortune: 13
+          unbreaking: 12
+          mending: 1
+      - material: NETHERITE_AXE
+        amount: 1
+        name: "&4&lHacha de Zeus"
+        enchantments:
+          efficiency: 18
+          sharpness: 15
+          unbreaking: 12
+          mending: 1
+      - material: NETHERITE_SHOVEL
+        amount: 1
+        name: "&4&lPala de Zeus"
+        enchantments:
+          efficiency: 18
+          unbreaking: 12
+          mending: 1
+      - material: SHIELD
+        amount: 1
+        name: "&4&lEscudo de Zeus"
+        enchantments:
+          unbreaking: 12
+          mending: 1
+      - material: GOLDEN_CARROT
+        amount: 64
+      - material: COOKED_BEEF
+        amount: 64
+      - material: GOLDEN_APPLE
+        amount: 64
+      - material: ENDER_PEARL
+        amount: 64
+      - material: TOTEM_OF_UNDYING
+        amount: 8
+
+polis-baseline:
+  # Only default-only users become Polis; staff and permanent ranks remain unchanged.
+  enabled: true
+  default-group: default
+  # Every account receives the implicit LuckPerms default group. Keep this
+  # aligned with purchases.yml so purchases do not create a redundant parent.
+  base-group: default
+  reconcile-interval-seconds: 60
+
+# Seguridad de FastMachines: el addon no valida por sí mismo la región de la máquina.
+fast-machines-protection:
+  enabled: true
+  bypass-permission: odysseia.fastmachines.bypass
+  denied-message: "&cNo puedes usar las Fast Machines de otra protección."
+
+# La compra SFMaster entrega la guía Cheat original y la vuelve inutilizable al expirar el pase.
+sfmaster-guide:
+  enabled: true
+  block-cheat-command: true
+  cleanup-interval-seconds: 30
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Puente de Traducción Bidireccional Discord ↔ Minecraft (via Star LibreTranslate)
+# ─────────────────────────────────────────────────────────────────────────────
+discord-translator:
+  enabled: true
+  # URL base de la API de traducción en Star (sin trailing slash)
+  api-url: "https://translate.drakescraft.cl"
+  # API key de LibreTranslate configurada en Star
+  api-key: "REPLACE_ME"
+  # Secret HMAC para firmar peticiones al endpoint /api/chat/ingest de Star
+  # Debe coincidir con ODYSSEIA_INGEST_SECRET en el .env de Star
+  ingest-secret: "REPLACE_ME"
+  # Traducir mensajes de Discord al español en Minecraft
+  translate-discord-to-mc: true
+  # Traducir mensajes de Minecraft al inglés en Discord
+  translate-mc-to-discord: false
+  # Idioma al que se traducen los mensajes recibidos en Minecraft
+  mc-target-language: "es"
+  # Idioma al que se traducen los mensajes de MC para Discord
+  discord-target-language: "en"
+
+# Defensa de economía: las ventas rápidas no pueden financiar granjas AFK.
+economy-guard:
+  sell-inventory:
+    cooldown-seconds: 20
+    window-seconds: 3600
+    max-items-per-material: 3456
+    # Se añaden a la lista segura del código para impedir una reactivación accidental.
+    blocked-materials:
+      - COBBLESTONE
+      - STONE
+      - DEEPSLATE
+      - COBBLED_DEEPSLATE
+      - DIRT
+      - SAND
+      - GRAVEL
+      - GRANITE
+      - DIORITE
+      - ANDESITE
+      - NETHERRACK
+      - BASALT
+      - BLACKSTONE
+
+# Máximo de cuentas simultáneas por dirección real. Añadir aquí redes compartidas
+# autorizadas antes de elevar este límite; no guardar nombres ni credenciales.
+anti-alt:
+  enabled: true
+  max-concurrent-per-ip: 2
+  exempt-addresses: []
+
+# Capa transversal contra macros de comercio. Complementa las cuotas por ítem
+# de /sellinv y cubre comandos equivalentes de otros plugins.
+exploit-guard:
+  enabled: true
+  commerce:
+    enabled: true
+    bypass-permission: odysseia.exploitguard.bypass
+    cooldown-millis: 750
+    burst-window-seconds: 20
+    max-commands-per-window: 8
+    restriction-seconds: 120
+    commands:
+      - sell
+      - sellall
+      - sellinv
+      - sellhand
+      - vender
+      - venderinv
+      - ushop
+      - ah
+      - auctionhouse

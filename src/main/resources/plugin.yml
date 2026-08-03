@@ -1,0 +1,26 @@
+name: DrakesBosses
+version: ${project.version}
+main: cl.drakescraft.bosses.DrakesBosses
+api-version: '1.21'
+description: Arenas, bosses, recompensas y economia de entradas para DrakesCraft.
+authors: [JackStar]
+softdepend: [Vault, Slimefun, DiosesDrakes, DrakesArcana]
+commands:
+  boss:
+    description: Administracion de bosses.
+    permission: drakesbosses.admin
+  bosswarp:
+    description: Entra a una arena aislada de boss.
+    permission: drakesbosses.bosswarp.use
+  spawnallbosses:
+    description: Crea bosses de prueba en arenas aisladas.
+    permission: drakesbosses.admin
+permissions:
+  drakesbosses.admin:
+    default: op
+  drakesbosses.bosswarp.use:
+    default: true
+  drakesbosses.bosswarp.staff:
+    default: op
+  drakesbosses.bosswarp.free:
+    default: op
