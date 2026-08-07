@@ -102,17 +102,20 @@ public final class BossArenaService implements Listener {
         }
         EntryCharge charge = chargeEntry ? chargeEntry(type, players) : EntryCharge.free();
         if (!charge.success()) {
-            rollbackSpawn(boss, players, cell, center, arenaBossType, EntryCharge.free());
+            rollbackSpawn(boss, players, cell, center, arenaBossType, EntryCharge.free(), Map.of());
             return failed(charge.error());
         }
+        // Fuera del try para que el rollback pueda leerlo: es lo unico que sabe de donde vino cada
+        // jugador, y sin eso no hay forma de devolver a quien ya habia cruzado.
+        Map<UUID, Location> returnLocations = new ConcurrentHashMap<>();
         try {
             if (group) boss.applyArenaPowerMultiplier(5.0D);
             Set<UUID> ids = new LinkedHashSet<>();
-            Map<UUID, Location> returnLocations = new ConcurrentHashMap<>();
             for (Player player : players) {
                 returnLocations.put(player.getUniqueId(), player.getLocation().clone());
-                if (!player.teleport(center.clone().add(0, 1, 12))) {
-                    throw new IllegalStateException("No se pudo teletransportar a " + player.getName());
+                if (!teleportIntoArena(player, center)) {
+                    throw new IllegalStateException("No se pudo teletransportar a " + player.getName()
+                            + " (¿otro plugin canceló el viaje?)");
                 }
                 ids.add(player.getUniqueId());
                 byPlayer.put(player.getUniqueId(), boss.getEntity().getUniqueId());
@@ -138,13 +141,28 @@ public final class BossArenaService implements Listener {
             return new StartResult(session, charge.feePerPlayer(), "");
         } catch (RuntimeException exception) {
             plugin.getLogger().warning("[BossArena] Rollback de arena " + type + ": " + exception.getMessage());
-            rollbackSpawn(boss, players, cell, center, arenaBossType, charge);
+            rollbackSpawn(boss, players, cell, center, arenaBossType, charge, returnLocations);
             return failed("La arena no pudo inicializarse. Tu entrada fue reembolsada.");
         }
     }
 
+    /**
+     * Mete a un jugador en la arena.
+     *
+     * Bukkit rechaza el teletransporte de una entidad que va montada o que lleva pasajeros, y
+     * devolvia false sin explicar por que: bastaba con llegar al warp montado --el dragon de
+     * /dragon, un caballo, un barco-- para que la arena entera se cayera y hubiera que reembolsar.
+     * Bajarse primero es lo que haria el jugador de todas formas.
+     */
+    private boolean teleportIntoArena(Player player, Location center) {
+        if (player.isInsideVehicle()) player.leaveVehicle();
+        if (!player.getPassengers().isEmpty()) player.eject();
+        return player.teleport(center.clone().add(0, 1, 12));
+    }
+
     /** Removes every partial arena side effect before an entry can be refunded. */
-    private void rollbackSpawn(OdysseyBoss boss, Collection<Player> players, int cell, Location center, String bossType, EntryCharge charge) {
+    private void rollbackSpawn(OdysseyBoss boss, Collection<Player> players, int cell, Location center,
+                               String bossType, EntryCharge charge, Map<UUID, Location> returnLocations) {
         byBoss.remove(boss.getEntity().getUniqueId());
         for (Player player : players) byPlayer.remove(player.getUniqueId(), boss.getEntity().getUniqueId());
         bosses.removeBoss(boss.getEntity().getUniqueId(), null);
@@ -152,6 +170,20 @@ public final class BossArenaService implements Listener {
         activeBossTypes.remove(bossType);
         clearFloor(center);
         charge.refund();
+        // Con varios jugadores el fallo puede llegar a mitad de la fila: los que ya cruzaron se
+        // quedaban tirados en una arena sin jefe, cobrados y devueltos a nada.
+        devolverAlPuntoDePartida(players, returnLocations);
+    }
+
+    private void devolverAlPuntoDePartida(Collection<Player> players, Map<UUID, Location> returnLocations) {
+        if (returnLocations == null || returnLocations.isEmpty()) return;
+        for (Player player : players) {
+            Location origen = returnLocations.get(player.getUniqueId());
+            if (origen == null || !player.isOnline()) continue;
+            if (player.getWorld().equals(origen.getWorld())
+                    && player.getLocation().distanceSquared(origen) < 1.0D) continue;
+            player.teleport(origen);
+        }
     }
 
     /** Price shown to players before they enter, excluding a configured staff bypass. */
