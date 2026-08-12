@@ -99,7 +99,10 @@ natural-spawn:
   max-active: 2
   min-distance: 40
   max-distance: 80
-  worlds: []
+  worlds:
+    - world
+    - world_nether
+    - world_the_end
   bosses: []
 
 boss-domains:
