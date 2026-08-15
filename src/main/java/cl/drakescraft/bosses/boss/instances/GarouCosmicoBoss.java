@@ -9,7 +9,9 @@ import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -34,9 +36,14 @@ public final class GarouCosmicoBoss extends OdysseyBoss {
 
     private static final Particle.DustOptions COSMIC_DUST = new Particle.DustOptions(Color.fromRGB(122, 76, 255), 1.8F);
     private static final String COSMIC_WEAPON_TAG = "drakes_garou_cosmic_weapon";
+    private static final String COSMIC_AFTERIMAGE_TAG = "drakes_garou_cosmic_afterimage";
+    private static final int TOTAL_COSMIC_LIVES = 4;
     private final Random random = new Random();
     private final List<ItemDisplay> cosmicWeapons = new ArrayList<>();
+    private final List<ArmorStand> cosmicAfterimages = new ArrayList<>();
     private int adaptationsUsed;
+    private int rebirthsUsed;
+    private long rebirthInvulnerableUntil;
     private BukkitTask activeSequence;
 
     public GarouCosmicoBoss(LivingEntity entity) {
@@ -59,13 +66,14 @@ public final class GarouCosmicoBoss extends OdysseyBoss {
         if (target == null) return;
 
         double distance = entity.getLocation().distanceSquared(target.getLocation());
-        if (currentPhase == 1) {
+        int intensity = combatIntensity();
+        if (intensity == 1) {
             if (distance > 144.0D) predictiveRush(target);
             else if (random.nextBoolean()) martialCounter(target);
             else hunterCombo(target);
             return;
         }
-        if (currentPhase == 2) {
+        if (intensity == 2) {
             switch (random.nextInt(5)) {
                 case 0 -> predictiveRush(target);
                 case 1 -> cosmicPressure(target.getLocation());
@@ -75,14 +83,18 @@ public final class GarouCosmicoBoss extends OdysseyBoss {
             }
             return;
         }
-        switch (random.nextInt(7)) {
+        switch (random.nextInt(intensity >= 4 ? 8 : 7)) {
             case 0 -> cosmicPressure(target.getLocation());
             case 1 -> stellarMirror(target);
             case 2 -> martialCounter(target);
             case 3 -> predictiveRush(target);
             case 4 -> hunterCombo(target);
             case 5 -> launchCosmicArsenal(target);
-            default -> cosmicRadiation(target.getLocation());
+            case 6 -> cosmicRadiation(target.getLocation());
+            default -> {
+                if (intensity >= 4 && random.nextBoolean()) cosmicSingularity(target);
+                else residualAssault(target);
+            }
         }
     }
 
@@ -101,6 +113,48 @@ public final class GarouCosmicoBoss extends OdysseyBoss {
         if (currentPhase == 3) {
             entity.getWorld().spawnParticle(Particle.REVERSE_PORTAL, center, 8, 0.65D, 1.0D, 0.65D, 0.03D);
         }
+    }
+
+    /** Gives Garou three cinematic second winds; the fourth defeat remains final. */
+    public boolean beginCosmicRebirth() {
+        if (rebirthsUsed >= TOTAL_COSMIC_LIVES - 1 || entity.isDead()) {
+            return false;
+        }
+
+        rebirthsUsed++;
+        long invulnerabilitySeconds = 4L;
+        rebirthInvulnerableUntil = System.currentTimeMillis() + invulnerabilitySeconds * 1_000L;
+        double restoredHealth = switch (rebirthsUsed) {
+            case 1 -> 0.80D;
+            case 2 -> 0.68D;
+            default -> 0.58D;
+        };
+        entity.setHealth(maxHealth * restoredHealth);
+        setAttribute(Attribute.ATTACK_DAMAGE, 42.0D + rebirthsUsed * 10.0D);
+        setAttribute(Attribute.MOVEMENT_SPEED, 0.42D + rebirthsUsed * 0.04D);
+        entity.setGlowing(true);
+        entity.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, (int) invulnerabilitySeconds * 20, 10, false, false, false));
+        entity.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 20 * 60 * 10, 2 + rebirthsUsed, false, false, false));
+
+        Location center = entity.getLocation().add(0, 1.0D, 0);
+        center.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, center, 180, 1.4D, 2.0D, 1.4D, 0.12D);
+        center.getWorld().spawnParticle(Particle.REVERSE_PORTAL, center, 140, 1.2D, 1.6D, 1.2D, 0.06D);
+        center.getWorld().playSound(center, Sound.ENTITY_WARDEN_EMERGE, 1.6F, 0.55F + rebirthsUsed * 0.08F);
+        for (Player player : combatantsNear(center, 48.0D)) {
+            player.sendTitle("§5§lFASE " + (rebirthsUsed + 1), "§dGarou se adapta y renace.", 8, 50, 14);
+            player.playSound(player.getLocation(), Sound.ITEM_TOTEM_USE, 1.0F, 0.65F);
+        }
+        Bukkit.getScheduler().runTaskLater(cl.drakescraft.bosses.DrakesBosses.getInstance(), () -> {
+            if (entity.isValid() && !entity.isDead()) {
+                entity.setGlowing(false);
+            }
+        }, invulnerabilitySeconds * 20L);
+        return true;
+    }
+
+    /** The damage listener uses this instead of Bukkit invulnerability for every damage source. */
+    public boolean isCosmicRebirthInvulnerable() {
+        return System.currentTimeMillis() < rebirthInvulnerableUntil;
     }
 
     /** Pone presion al jugador lejano con un salto fisico, no con teletransporte inseguro. */
@@ -234,6 +288,115 @@ public final class GarouCosmicoBoss extends OdysseyBoss {
         }.runTaskTimer(cl.drakescraft.bosses.DrakesBosses.getInstance(), 0L, 20L);
     }
 
+    /**
+     * La fase final convierte el suelo de la arena en un espectaculo de colapso, sin modificar
+     * bloques reales. Las particulas de bloque y la oscuridad cuentan la historia; el golpe final
+     * esta anunciado y da tiempo para abandonar el nucleo.
+     */
+    private void cosmicSingularity(Player target) {
+        Location center = target.getLocation().clone().add(0.0D, 0.2D, 0.0D);
+        announceAttack("Singularidad final: el vacío devora la arena");
+        for (Player player : combatantsNear(center, 42.0D)) {
+            player.sendTitle("§5§lSINGULARIDAD", "§dAlejate del nucleo antes del colapso.", 8, 42, 10);
+            player.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 54, 0, true, true, true));
+        }
+        activeSequence = new BukkitRunnable() {
+            private int tick;
+            private final BlockData floorFragment = Material.DEEPSLATE_TILES.createBlockData();
+
+            @Override
+            public void run() {
+                if (!isEncounterActive() || tick >= 30) {
+                    finishSequence();
+                    cancel();
+                    return;
+                }
+                double radius = Math.max(1.1D, 11.5D - tick * 0.34D);
+                center.getWorld().spawnParticle(Particle.PORTAL, center.clone().add(0.0D, 1.1D, 0.0D), 16,
+                        radius * 0.18D, 0.55D, radius * 0.18D, 0.22D);
+                center.getWorld().spawnParticle(Particle.DUST, center.clone().add(0.0D, 0.5D, 0.0D), 12,
+                        radius * 0.15D, 0.2D, radius * 0.15D, 0.0D, COSMIC_DUST);
+                // Fragmentos puramente de cliente: nunca se cambia el bloque real de la arena.
+                center.getWorld().spawnParticle(Particle.BLOCK, center.clone().add(0.0D, 0.05D, 0.0D), 8,
+                        radius * 0.42D, 0.04D, radius * 0.42D, 0.18D, floorFragment);
+                if (tick % 6 == 0) {
+                    center.getWorld().playSound(center, Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.9F,
+                            0.45F + tick * 0.015F);
+                }
+                if (tick == 24) {
+                    center.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, center, 1, 0, 0, 0, 0);
+                    center.getWorld().playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.35F, 0.55F);
+                    for (Player player : combatantsNear(center, 5.25D)) {
+                        player.damage(scaleArenaDamage(30.0D + combatIntensity() * 5.0D), entity);
+                        Vector pull = center.toVector().subtract(player.getLocation().toVector());
+                        if (pull.lengthSquared() > 0.01D) {
+                            player.setVelocity(pull.normalize().multiply(0.75D).setY(0.24D));
+                        }
+                    }
+                }
+                tick++;
+            }
+        }.runTaskTimer(cl.drakescraft.bosses.DrakesBosses.getInstance(), 0L, 2L);
+    }
+
+    /** Creates temporary visual doubles that strike together without becoming extra bosses. */
+    private void residualAssault(Player target) {
+        announceAttack("Imágenes residuales: no existe un único Garou");
+        clearCosmicAfterimages();
+        Location center = target.getLocation().clone();
+        int imageCount = Math.min(4, 1 + combatIntensity());
+        for (int index = 0; index < imageCount; index++) {
+            double angle = Math.PI * 2.0D * index / imageCount;
+            Location imageLocation = center.clone().add(Math.cos(angle) * 4.2D, 0.0D, Math.sin(angle) * 4.2D);
+            ArmorStand image = entity.getWorld().spawn(imageLocation, ArmorStand.class);
+            image.setGravity(false);
+            image.setMarker(true);
+            image.setBasePlate(false);
+            image.setArms(true);
+            image.setInvulnerable(true);
+            image.setCollidable(false);
+            image.setPersistent(false);
+            image.addScoreboardTag(COSMIC_AFTERIMAGE_TAG);
+            if (image.getEquipment() != null) {
+                image.getEquipment().setHelmet(new ItemStack(Material.WITHER_SKELETON_SKULL));
+                image.getEquipment().setChestplate(cosmicLeather(Material.LEATHER_CHESTPLATE, Color.fromRGB(48, 12, 100)));
+                image.getEquipment().setLeggings(cosmicLeather(Material.LEATHER_LEGGINGS, Color.fromRGB(78, 22, 148)));
+                image.getEquipment().setBoots(cosmicLeather(Material.LEATHER_BOOTS, Color.fromRGB(22, 74, 140)));
+                image.getEquipment().setItemInMainHand(new ItemStack(Material.NETHERITE_SWORD));
+            }
+            cosmicAfterimages.add(image);
+        }
+
+        activeSequence = new BukkitRunnable() {
+            private int tick;
+            private final java.util.Map<UUID, Integer> hits = new java.util.HashMap<>();
+
+            @Override
+            public void run() {
+                if (!isEncounterActive() || tick >= 18) {
+                    finishSequence();
+                    cancel();
+                    return;
+                }
+                for (ArmorStand image : cosmicAfterimages) {
+                    if (!image.isValid()) continue;
+                    Location position = image.getLocation().add(0, 1.0D, 0);
+                    position.getWorld().spawnParticle(Particle.DUST, position, 4, 0.25D, 0.65D, 0.25D, 0.02D, COSMIC_DUST);
+                    if (tick != 10) continue;
+                    position.getWorld().spawnParticle(Particle.SWEEP_ATTACK, position, 4, 1.5D, 0.25D, 1.5D, 0.0D);
+                    for (Player player : combatantsNear(position, 2.25D)) {
+                        int received = hits.getOrDefault(player.getUniqueId(), 0);
+                        if (received >= 2) continue;
+                        hits.put(player.getUniqueId(), received + 1);
+                        player.damage(scaleArenaDamage(5.0D + combatIntensity() * 2.0D), entity);
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 40, 0, true, true, true));
+                    }
+                }
+                tick++;
+            }
+        }.runTaskTimer(cl.drakescraft.bosses.DrakesBosses.getInstance(), 0L, 2L);
+    }
+
     /** Armas visuales orbitan al boss y despues salen hacia el objetivo una sola vez. */
     private void launchCosmicArsenal(Player target) {
         announceAttack("Arsenal que gira alrededor del cazador");
@@ -359,14 +522,26 @@ public final class GarouCosmicoBoss extends OdysseyBoss {
         return entity.isValid() && !entity.isDead();
     }
 
+    private int combatIntensity() {
+        return Math.max(currentPhase, rebirthsUsed + 1);
+    }
+
     private void finishSequence() {
         activeSequence = null;
         clearCosmicWeapons();
+        clearCosmicAfterimages();
     }
 
     private void clearCosmicWeapons() {
         cosmicWeapons.removeIf(display -> {
             if (display.isValid()) display.remove();
+            return true;
+        });
+    }
+
+    private void clearCosmicAfterimages() {
+        cosmicAfterimages.removeIf(image -> {
+            if (image.isValid()) image.remove();
             return true;
         });
     }

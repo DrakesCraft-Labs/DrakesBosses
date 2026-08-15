@@ -618,6 +618,16 @@ public class BossManager implements Listener {
                 event.setCancelled(true);
                 boss.getEntity().getWorld().spawnParticle(org.bukkit.Particle.ENCHANTED_HIT,
                         boss.getEntity().getLocation().add(0, 1, 0), 8, 0.4, 0.7, 0.4, 0.03);
+            } else if (boss instanceof GarouCosmicoBoss garou && garou.isCosmicRebirthInvulnerable()) {
+                event.setCancelled(true);
+                garou.getEntity().getWorld().spawnParticle(org.bukkit.Particle.REVERSE_PORTAL,
+                        garou.getEntity().getLocation().add(0, 1, 0), 18, 0.5, 0.8, 0.5, 0.04);
+            } else if (boss instanceof GarouCosmicoBoss garou
+                    && event.getFinalDamage() >= garou.getEntity().getHealth()
+                    && garou.beginCosmicRebirth()) {
+                // Garou has four lives: three resurrections and one authoritative final death.
+                event.setCancelled(true);
+                garou.updateBossBar();
             } else if (boss instanceof PrometeoBoss prometeo
                     && event.getFinalDamage() >= prometeo.getEntity().getHealth()
                     && prometeo.beginPhoenixRebirth()) {
