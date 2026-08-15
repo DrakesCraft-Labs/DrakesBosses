@@ -18,6 +18,14 @@ final class FullInfinityArmorCounterTest {
     }
 
     @Test
+    void recognizesTheLowercasePdcKeysUsedByModernSlimeTinker() {
+        assertTrue(FullInfinityArmorCounter.isInfinityArmourMaterialKey("st_material_plate"));
+        assertTrue(FullInfinityArmorCounter.isInfinityArmourMaterialKey("st_material_links"));
+        assertTrue(FullInfinityArmorCounter.isInfinityArmourMaterialKey("ST_Material_Plate"));
+        assertTrue(!FullInfinityArmorCounter.isInfinityArmourMaterialKey("st_material_head"));
+    }
+
+    @Test
     void counterRemovesHalfCurrentHealthWithoutExecutingThePlayer() {
         assertEquals(10.0D, FullInfinityArmorCounter.calculateResultingHealth(20.0D, 4.0D, 2.0D, 0.50D));
         assertEquals(4.0D, FullInfinityArmorCounter.calculateResultingHealth(6.0D, 4.0D, 2.0D, 0.50D));

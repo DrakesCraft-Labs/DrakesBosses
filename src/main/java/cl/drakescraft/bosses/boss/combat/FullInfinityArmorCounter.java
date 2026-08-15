@@ -24,7 +24,7 @@ import org.bukkit.potion.PotionEffectType;
 public final class FullInfinityArmorCounter {
 
     private static final Set<String> ARMOUR_MATERIAL_KEYS = Set.of(
-            "ST_Material_Plate", "ST_Material_Links", "ST_Material_Gambeson");
+            "st_material_plate", "st_material_links", "st_material_gambeson");
     private final DrakesBosses plugin;
     private final Map<UUID, Map<UUID, Long>> cooldowns = new ConcurrentHashMap<>();
 
@@ -103,9 +103,14 @@ public final class FullInfinityArmorCounter {
             return false;
         }
         return meta.getPersistentDataContainer().getKeys().stream()
-                .filter(key -> ARMOUR_MATERIAL_KEYS.contains(key.getKey()))
+                .filter(key -> isInfinityArmourMaterialKey(key.getKey()))
                 .map(key -> meta.getPersistentDataContainer().get(key, PersistentDataType.STRING))
                 .anyMatch(FullInfinityArmorCounter::isInfinitySingularityMaterialId);
+    }
+
+    /** SlimeTinker 1.21 stores PDC key paths in lowercase as required by Paper. */
+    static boolean isInfinityArmourMaterialKey(String key) {
+        return key != null && ARMOUR_MATERIAL_KEYS.contains(key.toLowerCase(java.util.Locale.ROOT));
     }
 
     static boolean isInfinitySingularityMaterialId(String materialId) {
