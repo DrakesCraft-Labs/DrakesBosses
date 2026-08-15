@@ -54,9 +54,11 @@ public final class FullInfinityArmorCounter {
         bossCooldowns.put(player.getUniqueId(), now + cooldownMillis);
 
         double minimumHealth = Math.max(1.0D, plugin.getConfig().getDouble(prefix + ".minimum-health", 4.0D));
-        double healthLoss = Math.max(plugin.getConfig().getDouble(prefix + ".minimum-health-loss", 2.0D),
-                player.getHealth() * Math.clamp(plugin.getConfig().getDouble(prefix + ".health-loss-fraction", 0.08D), 0.01D, 0.25D));
-        double resultingHealth = Math.max(minimumHealth, player.getHealth() - healthLoss);
+        double resultingHealth = calculateResultingHealth(
+                player.getHealth(),
+                minimumHealth,
+                plugin.getConfig().getDouble(prefix + ".minimum-health-loss", 2.0D),
+                plugin.getConfig().getDouble(prefix + ".health-loss-fraction", 0.50D));
         if (resultingHealth < player.getHealth()) {
             player.setHealth(resultingHealth);
         }
@@ -69,7 +71,13 @@ public final class FullInfinityArmorCounter {
         player.getWorld().spawnParticle(Particle.SCULK_SOUL, player.getLocation().add(0, 1.0D, 0), 28, 0.35D, 0.65D, 0.35D, 0.03D);
         player.getWorld().spawnParticle(Particle.REVERSE_PORTAL, player.getLocation().add(0, 1.0D, 0), 14, 0.3D, 0.5D, 0.3D, 0.04D);
         player.playSound(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.9F, 0.6F);
-        player.sendActionBar(ChatColor.DARK_PURPLE + "El jefe fractura tu armadura Infinity; tu defensa no es absoluta.");
+        player.sendTitle(
+                ChatColor.DARK_RED + "PODER DIVINO",
+                ChatColor.GOLD + "Tu infinidad no es nada frente a mi poder divino.",
+                8,
+                50,
+                16);
+        player.sendActionBar(ChatColor.DARK_PURPLE + "El jefe quebranta tu Infinity Singularity: tu defensa no es absoluta.");
     }
 
     /** Removes per-boss cooldown entries when an encounter is cleaned up. */
@@ -102,5 +110,12 @@ public final class FullInfinityArmorCounter {
 
     static boolean isInfinitySingularityMaterialId(String materialId) {
         return materialId != null && "INFINITY_SINGULARITY".equalsIgnoreCase(materialId);
+    }
+
+    /** Calculates the punitive health reduction while preserving a recoverable floor. */
+    static double calculateResultingHealth(double currentHealth, double minimumHealth, double minimumLoss, double lossFraction) {
+        double healthLoss = Math.max(Math.max(0.0D, minimumLoss),
+                currentHealth * Math.clamp(lossFraction, 0.01D, 0.95D));
+        return Math.max(Math.max(1.0D, minimumHealth), currentHealth - healthLoss);
     }
 }

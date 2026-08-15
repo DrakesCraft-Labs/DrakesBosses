@@ -56,7 +56,9 @@ boss-balance:
       final-damage-threshold: 0.05
       minimum-health: 4.0
       minimum-health-loss: 2.0
-      health-loss-fraction: 0.08
+      # Al anular por completo un golpe de jefe, el set recibe una respuesta seria.
+      # Nunca mata: minimum-health conserva una oportunidad de escapar y curarse.
+      health-loss-fraction: 0.50
       weakness-ticks: 80
       slowness-ticks: 40
 
