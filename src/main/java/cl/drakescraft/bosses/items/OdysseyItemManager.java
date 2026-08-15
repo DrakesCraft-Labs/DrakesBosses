@@ -678,6 +678,7 @@ public final class OdysseyItemManager {
             case "isis_feather" -> createBossRelic(Material.PHANTOM_MEMBRANE, "&d&l✦ Pluma de Isis", "isis_feather", "Isis");
             case "anubis_seal" -> createBossRelic(Material.BONE, "&8&l✦ Sello de Anubis", "anubis_seal", "Anubis");
             case "set_shard" -> createBossRelic(Material.ECHO_SHARD, "&4&l✦ Fragmento de Set", "set_shard", "Set");
+            case "garou_cosmic_core" -> createBossRelic(Material.NETHER_STAR, "&5&l✦ Núcleo Cósmico de Garou", "garou_cosmic_core", "Garou Cósmico");
             case "jax_fragment" -> createBossRelic(Material.AMETHYST_SHARD, "&5&l✦ Fragmento de Jax", "jax_fragment", "Jax");
             default -> null;
         };

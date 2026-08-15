@@ -32,9 +32,11 @@ class BossArenaPricingTest {
         fees.set("tifon", 1_500_000D);
         fees.set("dragon", 2_500_000D);
         fees.set("wither_storm", 5_000_000D);
+        fees.set("garou", 7_500_000D);
 
         assertEquals(1_500_000D, BossArenaPricing.feeFor(fees, "tifón"));
         assertEquals(2_500_000D, BossArenaPricing.feeFor(fees, "dragon_ancestral"));
         assertEquals(5_000_000D, BossArenaPricing.feeFor(fees, "wither"));
+        assertEquals(7_500_000D, BossArenaPricing.feeFor(fees, "garou_cosmico"));
     }
 }

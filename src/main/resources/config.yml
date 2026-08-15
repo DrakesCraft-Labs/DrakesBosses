@@ -35,7 +35,7 @@ boss-balance:
     flank-distance: 4.0
     cooldown-seconds: 7
   rebirth:
-    bosses: [thor, ares, hades, zeus, odin, kratos, heimdall, hidra, cerbero, tifon]
+    bosses: [thor, ares, hades, zeus, odin, kratos, heimdall, hidra, cerbero, tifon, garou_cosmico]
     health-percent: 0.55
     invulnerability-seconds: 5
   adaptive-counters:
@@ -83,6 +83,7 @@ boss-arena:
     tifon: 7500000
     dragon: 12500000
     wither_storm: 25000000
+    garou: 30000000
     free-permission: "drakesbosses.bosswarp.free"
   targeted-challenges:
     players:
@@ -235,6 +236,9 @@ boss-loot:
     set:
       drops:
         set_shard: 0.50
+    garou_cosmico:
+      drops:
+        garou_cosmic_core: 0.35
     jax:
       drops:
         jax_fragment: 0.50

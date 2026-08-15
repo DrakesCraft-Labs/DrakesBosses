@@ -48,6 +48,7 @@ import cl.drakescraft.bosses.boss.instances.WitherStormBoss;
 import cl.drakescraft.bosses.boss.instances.DragonAncestralBoss;
 import cl.drakescraft.bosses.boss.instances.EgyptianBoss;
 import cl.drakescraft.bosses.boss.instances.JaxDisplayBoss;
+import cl.drakescraft.bosses.boss.instances.GarouCosmicoBoss;
 import cl.drakescraft.bosses.boss.skills.PolymorphSkill;
 import cl.drakescraft.bosses.boss.combat.BossCombatDirector;
 import cl.drakescraft.bosses.utils.WebhookSender;
@@ -252,7 +253,7 @@ public class BossManager implements Listener {
                     "zeus", "loki", "odin", "kratos", "heimdall", "hidra", "cerbero", "artemisa", "tifon",
                     "tifón", "prometeo", "coloso_end", "coloso-end", "coloso", "wither", "wither_storm",
                     "wither-storm", "witherstorm", "dragon_ancestral", "dragon-ancestral", "dragon", "ra", "isis",
-                    "anubis", "set" -> true;
+                    "anubis", "set", "garou", "garou_cosmico", "garou-cosmico" -> true;
             case "jax", "ajax" -> plugin.getConfig().getBoolean("bosses.jax.enabled", true);
             default -> false;
         };
@@ -335,6 +336,10 @@ public class BossManager implements Listener {
         } else if (type.equalsIgnoreCase("set")) {
             entity = (LivingEntity) loc.getWorld().spawnEntity(loc, EntityType.HUSK);
             boss = new EgyptianBoss(entity, EgyptianBoss.Kind.SET);
+        } else if (type.equalsIgnoreCase("garou") || type.equalsIgnoreCase("garou_cosmico")
+                || type.equalsIgnoreCase("garou-cosmico")) {
+            entity = (LivingEntity) loc.getWorld().spawnEntity(loc, EntityType.WITHER_SKELETON);
+            boss = new GarouCosmicoBoss(entity);
         } else if (type.equalsIgnoreCase("jax") || type.equalsIgnoreCase("ajax")) {
             if (!plugin.getConfig().getBoolean("bosses.jax.enabled", true)) {
                 return null;

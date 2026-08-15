@@ -22,6 +22,7 @@ final class BossArenaPricing {
             case "tifón" -> "tifon";
             case "dragon_ancestral", "dragon-ancestral" -> "dragon";
             case "wither", "wither-storm", "witherstorm" -> "wither_storm";
+            case "garou_cosmico", "garou-cosmico" -> "garou";
             default -> normalized;
         };
     }

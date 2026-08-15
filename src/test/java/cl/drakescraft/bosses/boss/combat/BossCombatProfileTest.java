@@ -11,7 +11,7 @@ class BossCombatProfileTest {
     private static final Set<String> PRODUCTION_BOSSES = Set.of(
             "circe", "polifemo", "dios_corrupto", "thor", "ares", "hades", "poseidon", "zeus",
             "loki", "odin", "kratos", "heimdall", "hidra", "cerbero", "artemisa", "tifon",
-            "prometeo", "coloso_end", "wither_storm", "dragon_ancestral");
+            "prometeo", "coloso_end", "wither_storm", "dragon_ancestral", "garou_cosmico");
 
     @Test
     void everyProductionBossHasAnExplicitNonEmptyCombatProfile() {

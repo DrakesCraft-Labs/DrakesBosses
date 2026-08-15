@@ -148,6 +148,7 @@ public final class BossCommand implements CommandExecutor, TabCompleter {
                 || type.equals("witherstorm") || type.equals("dragon_ancestral")
                 || type.equals("dragon-ancestral") || type.equals("dragon")
                 || type.equals("ra") || type.equals("isis") || type.equals("anubis") || type.equals("set")
+                || type.equals("garou") || type.equals("garou_cosmico") || type.equals("garou-cosmico")
                 || type.equals("jax") || type.equals("ajax");
     }
 
@@ -196,7 +197,7 @@ public final class BossCommand implements CommandExecutor, TabCompleter {
                 "thor", "ares", "hades", "poseidon", "zeus",
                 "loki", "odin", "kratos",
                 "heimdall", "hidra", "cerbero", "artemisa", "tifon", "prometeo",
-                "coloso_end", "wither", "dragon", "ra", "isis", "anubis", "set", "jax"
+                "coloso_end", "wither", "dragon", "ra", "isis", "anubis", "set", "garou", "jax"
         );
     }
 }

@@ -35,7 +35,8 @@ public record BossCombatProfile(Set<AttackFamily> families) {
             Map.entry("prometeo", profile(AttackFamily.AERIAL, AttackFamily.RANGED)),
             Map.entry("coloso_end", profile(AttackFamily.GROUND, AttackFamily.AERIAL)),
             Map.entry("wither_storm", HYBRID),
-            Map.entry("dragon_ancestral", profile(AttackFamily.AERIAL, AttackFamily.RANGED))
+            Map.entry("dragon_ancestral", profile(AttackFamily.AERIAL, AttackFamily.RANGED)),
+            Map.entry("garou_cosmico", HYBRID)
     );
 
     public BossCombatProfile {
