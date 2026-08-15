@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/DrakesCraft-Labs/DrakesBosses/main/banner.svg" width="100%" alt="DRAKES BOSSES animated banner" />
+</p>
+
 # DrakesBosses
 
 <p align="center">
@@ -67,3 +71,4 @@ mvn clean verify
 ```
 
 Requires Java 21 and Paper `1.21.11`.
+
