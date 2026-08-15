@@ -51,6 +51,7 @@ import cl.drakescraft.bosses.boss.instances.JaxDisplayBoss;
 import cl.drakescraft.bosses.boss.instances.GarouCosmicoBoss;
 import cl.drakescraft.bosses.boss.skills.PolymorphSkill;
 import cl.drakescraft.bosses.boss.combat.BossCombatDirector;
+import cl.drakescraft.bosses.boss.combat.FullInfinityArmorCounter;
 import cl.drakescraft.bosses.utils.WebhookSender;
 import cl.drakescraft.bosses.api.BossVictoryEvent;
 
@@ -81,6 +82,7 @@ public class BossManager implements Listener {
     /** Arena visual temporal de invocaciones manuales; nunca modifica bloques del mundo. */
     private final Map<UUID, BukkitTask> activeDomains = new ConcurrentHashMap<>();
     private final BossCombatDirector combatDirector;
+    private final FullInfinityArmorCounter fullInfinityArmorCounter;
     private final File pendingRewardsFile;
     private final YamlConfiguration pendingRewards;
     private final java.lang.reflect.Method slimefunGetById;
@@ -102,6 +104,7 @@ public class BossManager implements Listener {
     public BossManager(DrakesBosses plugin) {
         this.plugin = plugin;
         this.combatDirector = new BossCombatDirector(plugin);
+        this.fullInfinityArmorCounter = new FullInfinityArmorCounter(plugin);
         this.pendingRewardsFile = new File(plugin.getDataFolder(), "boss-rewards.yml");
         this.pendingRewards = YamlConfiguration.loadConfiguration(pendingRewardsFile);
         java.lang.reflect.Method getById = null;
@@ -453,6 +456,7 @@ public class BossManager implements Listener {
         bossContributions.remove(uuid);
         bossDamageWindows.remove(uuid);
         adaptiveCounterCooldowns.remove(uuid);
+        fullInfinityArmorCounter.cleanup(uuid);
         lastMobility.remove(uuid);
         combatDirector.cleanup(uuid);
         if (boss != null) {
@@ -691,6 +695,22 @@ public class BossManager implements Listener {
                 // Efecto de escudo dorado al recibir el golpe del boss
                 player.getWorld().spawnParticle(org.bukkit.Particle.ELECTRIC_SPARK, player.getLocation().add(0, 1, 0), 8, 0.2, 0.3, 0.2, 0.05);
             }
+        }
+    }
+
+    /**
+     * SlimeTinker may cancel the original hit before normal boss scaling runs.
+     * Observe the final outcome and apply a slow, non-lethal counter only to a
+     * complete Infinity Singularity set that erased the hit altogether.
+     */
+    @EventHandler(priority = org.bukkit.event.EventPriority.MONITOR, ignoreCancelled = false)
+    public void onFullInfinityArmorCounter(org.bukkit.event.entity.EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        OdysseyBoss attackingBoss = resolveBossDamager(event.getDamager());
+        if (attackingBoss != null) {
+            fullInfinityArmorCounter.applyIfFullyNegated(attackingBoss, player, event);
         }
     }
 

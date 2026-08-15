@@ -49,6 +49,16 @@ boss-balance:
       sharpness-threshold: 7
       max-hit-health-fraction: 0.025
       max-burst-health-fraction: 0.12
+    full-infinity-armor:
+      # Sólo detecta las cuatro piezas Tinker con INFINITY_SINGULARITY real en PDC.
+      enabled: true
+      cooldown-seconds: 5
+      final-damage-threshold: 0.05
+      minimum-health: 4.0
+      minimum-health-loss: 2.0
+      health-loss-fraction: 0.08
+      weakness-ticks: 80
+      slowness-ticks: 40
 
 boss-arena:
   # El plugin nunca crea el mundo ni cobra si esta ausente o no es valido.
