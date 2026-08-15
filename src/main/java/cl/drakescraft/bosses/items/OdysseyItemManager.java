@@ -12,13 +12,26 @@ import cl.drakescraft.bosses.DrakesBosses;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public final class OdysseyItemManager {
 
     // Conserva el namespace historico: las reliquias ya entregadas siguen funcionando.
     public static final NamespacedKey ITEM_KEY = new NamespacedKey("odysseia", "odyssey_item_type");
+    private static final Set<String> BOSS_DROP_IDS = Set.of(
+            "circe_staff", "polifemo_club", "corrupted_god_blade", "mjolnir", "ares_blade", "ares_shield",
+            "hades_scythe", "poseidon_trident", "zeus_mace", "loki_dagger", "loki_scepter", "odin_spear",
+            "odin_helmet", "kratos_blade", "leviathan_axe", "gjallarhorn", "bifrost_wings", "hydra_fang",
+            "hydra_scale", "cerbero_hide", "artemis_bow", "tifon_claw", "tifon_chest", "prometeo_flame",
+            "coloso_core", "storm_heart", "dragon_heart", "ra_sun", "isis_feather", "anubis_seal", "set_shard",
+            "garou_cosmic_core", "jax_fragment");
 
     private OdysseyItemManager() {}
+
+    /** Allows config validation without touching Paper registries during unit tests. */
+    public static boolean isRegisteredBossDropId(String itemId) {
+        return itemId != null && BOSS_DROP_IDS.contains(itemId.toLowerCase(java.util.Locale.ROOT));
+    }
 
     private static ItemStack createBaseItem(Material material, String name, String typeId, String... loreLines) {
         ItemStack item = new ItemStack(material);

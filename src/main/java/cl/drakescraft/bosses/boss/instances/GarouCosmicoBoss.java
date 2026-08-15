@@ -11,7 +11,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ItemDisplay;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Husk;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -40,7 +40,7 @@ public final class GarouCosmicoBoss extends OdysseyBoss {
     private static final int TOTAL_COSMIC_LIVES = 4;
     private final Random random = new Random();
     private final List<ItemDisplay> cosmicWeapons = new ArrayList<>();
-    private final List<ArmorStand> cosmicAfterimages = new ArrayList<>();
+    private final List<Husk> cosmicAfterimages = new ArrayList<>();
     private int adaptationsUsed;
     private int rebirthsUsed;
     private long rebirthInvulnerableUntil;
@@ -348,14 +348,15 @@ public final class GarouCosmicoBoss extends OdysseyBoss {
         for (int index = 0; index < imageCount; index++) {
             double angle = Math.PI * 2.0D * index / imageCount;
             Location imageLocation = center.clone().add(Math.cos(angle) * 4.2D, 0.0D, Math.sin(angle) * 4.2D);
-            ArmorStand image = entity.getWorld().spawn(imageLocation, ArmorStand.class);
-            image.setGravity(false);
-            image.setMarker(true);
-            image.setBasePlate(false);
-            image.setArms(true);
+            Husk image = entity.getWorld().spawn(imageLocation, Husk.class);
+            // Bedrock renders real entities consistently; marker ArmorStands are unreliable there.
+            image.setAI(false);
+            image.setBaby(false);
+            image.setSilent(true);
             image.setInvulnerable(true);
             image.setCollidable(false);
             image.setPersistent(false);
+            image.setRemoveWhenFarAway(true);
             image.addScoreboardTag(COSMIC_AFTERIMAGE_TAG);
             if (image.getEquipment() != null) {
                 image.getEquipment().setHelmet(new ItemStack(Material.WITHER_SKELETON_SKULL));
@@ -378,7 +379,7 @@ public final class GarouCosmicoBoss extends OdysseyBoss {
                     cancel();
                     return;
                 }
-                for (ArmorStand image : cosmicAfterimages) {
+                for (Husk image : cosmicAfterimages) {
                     if (!image.isValid()) continue;
                     Location position = image.getLocation().add(0, 1.0D, 0);
                     position.getWorld().spawnParticle(Particle.DUST, position, 4, 0.25D, 0.65D, 0.25D, 0.02D, COSMIC_DUST);
