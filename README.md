@@ -137,3 +137,13 @@ Requires Java 21 and Paper `1.21.11`. `mvn clean verify` also runs tests for
 arena configuration/pricing, combat profiles, configuration scope and the
 Infinity armor counter.
 
+
+## ⚖️ Upstream Attribution & License / Licencia y Créditos
+
+- **Original Project / Upstream**: Slimefun4 Community Addon.
+- **Port & Maintenance**: DrakesCraft Labs team (Compatibility for Paper / Purpur 1.21.11).
+- **License**: GPL-3.0 / MIT.
+- **Source Code**: [GitHub Repository](https://github.com/DrakesCraft-Labs/DrakesBosses)
+- **Support & Issues**: [GitHub Issues](https://github.com/DrakesCraft-Labs/DrakesBosses/issues) | [Discord](https://discord.gg/rR7FbfCt9Y)
+
+*This project is an open-source derivative work maintained by DrakesCraft Labs under the terms of its original license. All original assets and concepts belong to their respective creators.*
