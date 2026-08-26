@@ -38,7 +38,7 @@ public final class SolarFlareAttack implements BossAttack {
 
     Location center = target.getLocation().clone();
     soporte.telegraph(boss, "Llamarada solar", center, soporte.dustDistancia(), Sound.ITEM_TOTEM_USE, () -> {
-        center.getWorld().spawnParticle(Particle.FLASH, center.clone().add(0, 1, 0), 1, 0, 0, 0, 0);
+        center.getWorld().spawnParticle(Particle.FLASH, center.clone().add(0, 1, 0), 1, 0, 0, 0, 0, Color.fromRGB(255, 240, 150));
         center.getWorld().spawnParticle(Particle.FIREWORK, center.clone().add(0, 1, 0), 80, 3.5, 1.5, 3.5, 0.15);
         for (Player player : soporte.playersNear(center, 8.0D)) {
             player.damage(boss.scaleArenaDamage(11.0D), boss.getEntity());
