@@ -70,6 +70,8 @@ public class BossManager implements Listener {
     private final DrakesBosses plugin;
     private final Map<UUID, OdysseyBoss> activeBosses = new ConcurrentHashMap<>();
     private final java.util.Set<UUID> naturalBosses = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    /** Jefes invocados por staff para pruebas (BossArenaService#startForced): sin entrada pagada, sin recompensa. */
+    private final java.util.Set<UUID> noRewardBosses = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private final Map<String, Long> lastSpawnAnnouncements = new ConcurrentHashMap<>();
     /** Daño efectivo aportado por jugador a cada boss, usado para repartir el loot. */
     private final Map<UUID, Map<UUID, Double>> bossContributions = new ConcurrentHashMap<>();
@@ -246,6 +248,14 @@ public class BossManager implements Listener {
             plugin.getLogger().fine("[Bosses] Transformación vanilla bloqueada para "
                     + activeBosses.get(event.getEntity().getUniqueId()).getId());
         }
+    }
+
+    /**
+     * Marca un jefe como invocación de prueba sin entrada pagada (staff /boss spawn):
+     * su muerte no debe entregar experiencia ni loot mítico real.
+     */
+    public void markNoReward(UUID bossEntityId) {
+        noRewardBosses.add(bossEntityId);
     }
 
     /** Validates a boss id before an arena can charge an entry fee. */
@@ -453,6 +463,7 @@ public class BossManager implements Listener {
         BukkitTask domain = activeDomains.remove(uuid);
         if (domain != null) domain.cancel();
         naturalBosses.remove(uuid);
+        noRewardBosses.remove(uuid);
         bossContributions.remove(uuid);
         bossDamageWindows.remove(uuid);
         adaptiveCounterCooldowns.remove(uuid);
@@ -742,20 +753,29 @@ public class BossManager implements Listener {
             Map<UUID, Double> contributions = new HashMap<>(bossContributions.getOrDefault(entity.getUniqueId(), Map.of()));
             List<Player> participants = findEligibleRecipients(killer, contributions);
             Player creditedKiller = resolveCreditedKiller(killer, participants, contributions);
+            boolean noReward = noRewardBosses.contains(entity.getUniqueId());
             removeBoss(entity.getUniqueId(), killer);
 
             event.getDrops().clear();
             if (boss != null) {
-                distributeCustomDrops(boss.getId(), entity.getLocation(), creditedKiller, participants, contributions);
-                Bukkit.getPluginManager().callEvent(new BossVictoryEvent(entity.getUniqueId(), boss.getId(),
-                        entity.getLocation(), contributions, java.time.Instant.now()));
+                if (noReward) {
+                    plugin.getLogger().info("[Bosses] " + boss.getId() + " invocado por staff sin entrada pagada; "
+                            + "muerte sin recompensa (creditado: "
+                            + (creditedKiller != null ? creditedKiller.getName() : "ninguno") + ").");
+                } else {
+                    distributeCustomDrops(boss.getId(), entity.getLocation(), creditedKiller, participants, contributions);
+                    // BossVictoryEvent es el gancho que usan integraciones externas (p. ej. DiosesDrakes)
+                    // para repartir sus propias recompensas; una muerte de prueba no debe dispararlo.
+                    Bukkit.getPluginManager().callEvent(new BossVictoryEvent(entity.getUniqueId(), boss.getId(),
+                            entity.getLocation(), contributions, java.time.Instant.now()));
+                }
                 if (creditedKiller != null && creditedKiller != killer) {
                     broadcastDeath(boss, creditedKiller);
                     sendDiscordWebhook(boss, false, creditedKiller);
                 }
             }
 
-            event.setDroppedExp(Math.max(5000, plugin.getConfig().getInt("boss-loot.experience", 5000)));
+            event.setDroppedExp(noReward ? 0 : Math.max(5000, plugin.getConfig().getInt("boss-loot.experience", 5000)));
 
             Location loc = entity.getLocation();
             loc.getWorld().playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);

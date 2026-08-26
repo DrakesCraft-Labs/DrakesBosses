@@ -59,9 +59,17 @@ public final class BossArenaService implements Listener {
         return startInternal(type, players, group, true);
     }
 
-    /** Starts a no-cost arena for controlled staff testing. */
+    /**
+     * Starts a no-cost arena for controlled staff testing. Rewards are suppressed: a staff
+     * experiment must never be the source of a real legendary item or level grant (ticket
+     * boss-staff-spawn-rewards-without-entry).
+     */
     public StartResult startForced(String type, Collection<Player> players) {
-        return startInternal(type, players, players.size() > 1, false);
+        StartResult result = startInternal(type, players, players.size() > 1, false);
+        if (result.started()) {
+            bosses.markNoReward(result.session().bossId());
+        }
+        return result;
     }
 
     /** Starts a solo arena paid by a consumed summoner rather than Vault currency. */
