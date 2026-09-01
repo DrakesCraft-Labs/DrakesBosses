@@ -8,6 +8,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -20,6 +21,7 @@ import org.bukkit.util.Vector;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import cl.drakescraft.bosses.DrakesBosses;
+import cl.drakescraft.bosses.boss.arena.MaxHealthLimit;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,10 +49,6 @@ public abstract class OdysseyBoss {
      * exceeding Minecraft's max-health attribute limits.
      */
     private double arenaHealthDamageDivider = 1.0D;
-
-    /** Techo declarado por Paper al rechazar un valor de MAX_HEALTH. */
-    private static final java.util.regex.Pattern ATTRIBUTE_CEILING =
-            java.util.regex.Pattern.compile("between\\s+[-0-9.]+\\s+and\\s+([0-9.]+)");
 
     public OdysseyBoss(LivingEntity entity, String id, String displayName, double maxHealth, BarColor barColor, BarStyle barStyle) {
         this.entity = entity;
@@ -388,9 +386,7 @@ public abstract class OdysseyBoss {
         entity.setHealth(maxHealth);
         // Lo que el atributo no acepta no se pierde: se cobra como absorcion de dano
         // para que la arena de grupo conserve su dificultad en cualquier servidor.
-        if (appliedHealth < desiredHealth) {
-            applyArenaHealthMultiplier(desiredHealth / appliedHealth);
-        }
+        applyArenaHealthMultiplier(MaxHealthLimit.compensationDivider(desiredHealth, appliedHealth));
     }
 
     /** Applies a bounded effective-health multiplier to this arena instance only. */
@@ -402,16 +398,15 @@ public abstract class OdysseyBoss {
     /**
      * Asigna la vida maxima sin pasarse del techo que impone el servidor.
      *
-     * Paper rechaza con IllegalArgumentException cualquier valor por encima del
-     * limite del atributo (10000 en DrakesCraft), y esa excepcion tumbaba la
-     * arena de grupo entera. Devuelve el valor realmente aplicado.
+     * Devuelve el valor realmente aplicado, que puede ser menor que el pedido.
      */
-    private static double applyMaxHealthWithinServerLimit(org.bukkit.attribute.AttributeInstance attribute, double desired) {
+    private static double applyMaxHealthWithinServerLimit(AttributeInstance attribute, double desired) {
         try {
             attribute.setBaseValue(desired);
             return desired;
         } catch (IllegalArgumentException rejected) {
-            double ceiling = parseAttributeCeiling(rejected.getMessage());
+            double previous = attribute.getBaseValue();
+            double ceiling = MaxHealthLimit.ceilingFromMessage(rejected.getMessage());
             if (ceiling > 0.0D) {
                 try {
                     attribute.setBaseValue(ceiling);
@@ -420,39 +415,20 @@ public abstract class OdysseyBoss {
                     // El mensaje no describia el techo real: cae a la busqueda binaria.
                 }
             }
-            return highestAcceptedBaseValue(attribute, desired);
+            double best = MaxHealthLimit.highestAccepted(
+                    candidate -> {
+                        try {
+                            attribute.setBaseValue(candidate);
+                            return true;
+                        } catch (IllegalArgumentException tooHigh) {
+                            return false;
+                        }
+                    },
+                    desired,
+                    previous);
+            attribute.setBaseValue(best);
+            return best;
         }
-    }
-
-    /** Extrae el techo del mensaje "must be between 0 and 10000.0" cuando existe. */
-    private static double parseAttributeCeiling(String message) {
-        if (message == null) return -1.0D;
-        java.util.regex.Matcher matcher = ATTRIBUTE_CEILING.matcher(message);
-        if (!matcher.find()) return -1.0D;
-        try {
-            return Double.parseDouble(matcher.group(1));
-        } catch (NumberFormatException unparsable) {
-            return -1.0D;
-        }
-    }
-
-    /** Ultimo recurso si el mensaje no revela el techo: busca el mayor valor aceptado. */
-    private static double highestAcceptedBaseValue(org.bukkit.attribute.AttributeInstance attribute, double desired) {
-        double low = 1.0D;
-        double high = desired;
-        double best = attribute.getBaseValue();
-        for (int attempt = 0; attempt < 24 && high - low > 1.0D; attempt++) {
-            double candidate = low + (high - low) / 2.0D;
-            try {
-                attribute.setBaseValue(candidate);
-                best = candidate;
-                low = candidate;
-            } catch (IllegalArgumentException tooHigh) {
-                high = candidate;
-            }
-        }
-        attribute.setBaseValue(best);
-        return best;
     }
 
     /** Reduces incoming player damage for a targeted arena challenge. */
