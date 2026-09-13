@@ -19,16 +19,23 @@ import cl.drakescraft.bosses.boss.OdysseyBoss;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Boss backed by a hidden living entity and a display-entity sculpture.
  * The living core keeps combat, boss bars and reward tracking compatible with BossManager.
  */
 public final class JaxDisplayBoss extends OdysseyBoss {
+
+    private static final String MODEL_RESOURCE = "models/jax-model.command";
+
+    /** Una causa permanente (recurso ausente) avisaba en cada spawn; se recuerda por arranque. */
+    private static final Set<String> WARNED_MODEL_CAUSES = ConcurrentHashMap.newKeySet();
 
     private BlockDisplay visualRoot;
 
@@ -122,20 +129,29 @@ public final class JaxDisplayBoss extends OdysseyBoss {
     private void scheduleVisual(Location location) {
         String command = readModelCommand();
         if (command == null) {
-            logModelFallback();
+            logModelFallback("falta el modelo: ni plugins/DrakesBosses/" + MODEL_RESOURCE
+                    + " ni el recurso " + MODEL_RESOURCE + " del jar contienen un '"
+                    + JaxModelCommand.REQUIRED_PREFIX + "...'");
             return;
         }
         World world = location.getWorld();
         if (world == null) {
-            logModelFallback();
+            logModelFallback("el nucleo aparecio sin mundo asociado");
             return;
         }
         String marker = "odysseia_jax_" + entity.getUniqueId().toString().replace("-", "");
-        String taggedCommand = command.replaceFirst("\\{", "{Tags:[\"" + marker + "\"],");
-        String positioned = String.format(Locale.ROOT, "execute positioned %.3f %.3f %.3f run %s",
+        String taggedCommand = JaxModelCommand.tagged(command, marker);
+        if (taggedCommand == null) {
+            logModelFallback("el modelo no trae compuesto NBT '{...}' donde insertar la etiqueta de rastreo");
+            return;
+        }
+        // Sin 'execute in <mundo>' la consola invoca en su dimension por defecto (el overworld),
+        // no en la arena: el display nacia fuera del mundo del boss, attachVisual no lo encontraba
+        // y quedaba un BlockDisplay huerfano por cada spawn.
+        String positioned = JaxModelCommand.positioned(world.getKey().toString(),
                 location.getX(), location.getY(), location.getZ(), taggedCommand);
         if (!Bukkit.dispatchCommand(Bukkit.getConsoleSender(), positioned)) {
-            logModelFallback();
+            logModelFallback("la consola rechazo el summon del modelo");
             return;
         }
         Bukkit.getScheduler().runTaskLater(DrakesBosses.getInstance(), () -> attachVisual(world, marker), 1L);
@@ -148,7 +164,9 @@ public final class JaxDisplayBoss extends OdysseyBoss {
                 .orElse(null);
         if (root == null || entity.isDead()) {
             if (root != null) root.remove();
-            logModelFallback();
+            logModelFallback(root == null
+                    ? "el display etiquetado no aparecio en " + world.getName() + " al tick siguiente"
+                    : "el nucleo murio antes de poder vestirlo");
             return;
         }
         visualRoot = root;
@@ -160,22 +178,50 @@ public final class JaxDisplayBoss extends OdysseyBoss {
         entity.setCustomNameVisible(false);
     }
 
-    private void logModelFallback() {
+    /**
+     * El aviso decia solo "no pudo cargar su modelo", sin distinguir cual de las cinco rutas fallo:
+     * un recurso ausente (condicion permanente) se leia igual que la carrera de un tick con Paper.
+     * Ahora cada causa se nombra y se recuerda, para que una condicion permanente avise una vez por
+     * arranque en vez de una vez por spawn.
+     */
+    private void logModelFallback(String cause) {
+        if (!WARNED_MODEL_CAUSES.add(cause)) {
+            return;
+        }
         DrakesBosses.getInstance().getLogger().warning(
-                "[Bosses] Jax no pudo cargar su modelo; el núcleo sigue visible para evitar un boss invisible.");
+                "[Bosses] Jax no pudo cargar su modelo (" + cause
+                        + "); el núcleo sigue visible para evitar un boss invisible.");
     }
 
+    /**
+     * Lee el modelo de {@code plugins/DrakesBosses/models/jax-model.command} y, si no esta, del jar.
+     * La copia en disco permite reponer o retocar la escultura sin recompilar el plugin; hoy el
+     * recurso del jar no existe, asi que esa es la unica via activa.
+     */
     private String readModelCommand() {
-        try (InputStream stream = DrakesBosses.getInstance().getResource("models/jax-model.command")) {
+        Path override = DrakesBosses.getInstance().getDataFolder().toPath().resolve(MODEL_RESOURCE);
+        if (Files.isRegularFile(override)) {
+            try {
+                return validModelCommand(Files.readString(override, StandardCharsets.UTF_8));
+            } catch (IOException exception) {
+                DrakesBosses.getInstance().getLogger()
+                        .warning("[Bosses] No se pudo leer " + override + ": " + exception.getMessage());
+            }
+        }
+        try (InputStream stream = DrakesBosses.getInstance().getResource(MODEL_RESOURCE)) {
             if (stream == null) {
                 return null;
             }
-            String command = new String(stream.readAllBytes(), StandardCharsets.UTF_8).trim();
-            return command.startsWith("summon block_display ") ? command : null;
+            return validModelCommand(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException exception) {
             DrakesBosses.getInstance().getLogger().warning("[Bosses] No se pudo leer el modelo de Jax: " + exception.getMessage());
             return null;
         }
+    }
+
+    private static String validModelCommand(String raw) {
+        String command = raw.trim();
+        return command.startsWith(JaxModelCommand.REQUIRED_PREFIX) ? command : null;
     }
 
     private void removeVisual(Entity visual, Set<UUID> visited) {
