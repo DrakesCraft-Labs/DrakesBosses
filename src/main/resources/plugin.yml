@@ -10,8 +10,12 @@ commands:
     description: Administracion de bosses.
     permission: drakesbosses.admin
   bosswarp:
-    description: Entra a una arena aislada de boss.
+    description: Entra a una arena aislada de boss o abre el menu interactivo.
     permission: drakesbosses.bosswarp.use
+  bosses:
+    description: Abre la interfaz interactiva de bosses y arenas.
+    permission: drakesbosses.bosswarp.use
+    aliases: [jefes, bossgui]
   spawnallbosses:
     description: Crea bosses de prueba en arenas aisladas.
     permission: drakesbosses.admin

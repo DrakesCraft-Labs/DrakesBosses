@@ -35,11 +35,15 @@ public final class DrakesBosses extends JavaPlugin {
 
         bossManager = new BossManager(this);
         bossArenas = new BossArenaService(this, bossManager);
-        BossWarpCommand bossWarp = new BossWarpCommand(bossArenas);
+        BossWarpCommand bossWarp = new BossWarpCommand(this, bossArenas);
         BossCommand bossCommand = new BossCommand(this, bossManager);
 
         Objects.requireNonNull(getCommand("bosswarp")).setExecutor(bossWarp);
         Objects.requireNonNull(getCommand("bosswarp")).setTabCompleter(bossWarp);
+        if (getCommand("bosses") != null) {
+            Objects.requireNonNull(getCommand("bosses")).setExecutor(bossWarp);
+            Objects.requireNonNull(getCommand("bosses")).setTabCompleter(bossWarp);
+        }
         Objects.requireNonNull(getCommand("boss")).setExecutor(bossCommand);
         Objects.requireNonNull(getCommand("boss")).setTabCompleter(bossCommand);
         Objects.requireNonNull(getCommand("spawnallbosses")).setExecutor(bossCommand);
@@ -48,7 +52,8 @@ public final class DrakesBosses extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(bossManager, this);
         Bukkit.getPluginManager().registerEvents(bossArenas, this);
         Bukkit.getPluginManager().registerEvents(new BossItemListener(this), this);
-        getLogger().info("DrakesBosses listo: bosses, arenas, loot y cobros aislados de Odysseia.");
+        Bukkit.getPluginManager().registerEvents(new cl.drakescraft.bosses.gui.BossMenu(this, bossArenas), this);
+        getLogger().info("DrakesBosses listo: bosses, arenas, GUI interactiva, loot y cobros balanceados.");
     }
 
     @Override

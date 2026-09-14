@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import cl.drakescraft.bosses.DrakesBosses;
 import cl.drakescraft.bosses.boss.arena.BossArenaService;
 
 /** Public entry point for isolated boss sessions. */
@@ -21,10 +22,22 @@ public final class BossWarpCommand implements CommandExecutor, TabCompleter {
             "loki", "odin", "kratos", "heimdall", "hidra", "cerbero", "artemisa", "tifon",
             "prometeo", "coloso_end", "wither_storm", "dragon_ancestral", "ra", "isis", "anubis",
             "set", "jax");
+    private final DrakesBosses plugin;
     private final BossArenaService arenas;
-    public BossWarpCommand(BossArenaService arenas) { this.arenas = arenas; }
+    public BossWarpCommand(DrakesBosses plugin, BossArenaService arenas) {
+        this.plugin = plugin;
+        this.arenas = arenas;
+    }
     @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) return true;
+        if (label.equalsIgnoreCase("bosses") || label.equalsIgnoreCase("jefes") || args.length < 1) {
+            new cl.drakescraft.bosses.gui.BossMenu(plugin, arenas).open(player);
+            return true;
+        }
+        if (args.length >= 1 && args[0].equalsIgnoreCase("menu")) {
+            new cl.drakescraft.bosses.gui.BossMenu(plugin, arenas).open(player);
+            return true;
+        }
         if (args.length >= 1 && args[0].equalsIgnoreCase("staff")) {
             return startForcedArena(player, args);
         }
@@ -35,11 +48,6 @@ public final class BossWarpCommand implements CommandExecutor, TabCompleter {
         if (args.length >= 2 && args[0].equalsIgnoreCase("spectate")) {
             Player target = Bukkit.getPlayerExact(args[1]);
             if (target == null || !arenas.spectate(player, target)) player.sendMessage("§cEse jugador no está en una arena activa.");
-            return true;
-        }
-        if (args.length < 1) {
-            player.sendMessage("§eUso: /bosswarp <jefe> [solo|grupo] | /bosswarp precios | /bosswarp spectate <jugador>");
-            sendPrices(player);
             return true;
         }
         boolean group = args.length > 1 && args[1].equalsIgnoreCase("grupo");
