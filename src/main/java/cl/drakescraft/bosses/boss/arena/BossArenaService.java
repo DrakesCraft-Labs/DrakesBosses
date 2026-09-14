@@ -42,6 +42,10 @@ public final class BossArenaService implements Listener {
     private final Map<UUID, SpectatorReturn> spectators = new ConcurrentHashMap<>();
     private final Set<Integer> occupiedCells = ConcurrentHashMap.newKeySet();
     private final Set<String> activeBossTypes = ConcurrentHashMap.newKeySet();
+    /** Worlds already reported as non-flat, so the advisory is logged once and not per arena entry. */
+    private final SessionLogGate<String> nonFlatReported = new SessionLogGate<>();
+    /** Sessions whose first containment was already logged; pruned against live sessions each pass. */
+    private final SessionLogGate<UUID> containmentReported = new SessionLogGate<>();
 
     public BossArenaService(DrakesBosses plugin, BossManager bosses) {
         this.plugin = plugin;
@@ -371,8 +375,9 @@ public final class BossArenaService implements Listener {
         world.setGameRule(org.bukkit.GameRule.DO_MOB_SPAWNING, false);
         world.setGameRule(org.bukkit.GameRule.DO_DAYLIGHT_CYCLE, false);
         world.setTime(18000L);
-        if (world.getWorldType() != WorldType.FLAT) {
-            plugin.getLogger().warning("[BossArena] El mundo de arenas no es plano; no sera recreado ni modificado automaticamente.");
+        if (world.getWorldType() != WorldType.FLAT && nonFlatReported.firstTime(world.getName())) {
+            plugin.getLogger().warning("[BossArena] El mundo de arenas '" + world.getName()
+                    + "' no es plano; no sera recreado ni modificado automaticamente. Aviso unico por arranque.");
         }
     }
 
@@ -466,8 +471,12 @@ public final class BossArenaService implements Listener {
             }
             entity.teleport(center.clone().add(0, 2, 0));
             entity.setVelocity(entity.getVelocity().zero());
-            plugin.getLogger().info("[BossArena] Contención aplicada a " + session.bossType() + " en arena " + session.id() + ".");
+            if (containmentReported.firstTime(session.bossId())) {
+                plugin.getLogger().info("[BossArena] Contención aplicada a " + session.bossType()
+                        + " en arena " + session.id() + ". Las repeticiones de esta misma sesion no se registran.");
+            }
         }
+        containmentReported.retain(byBoss.keySet());
     }
 
     /** Prevents a despawned or externally removed boss from marooning arena players. */
