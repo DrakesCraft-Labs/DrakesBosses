@@ -24,6 +24,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import cl.drakescraft.bosses.DrakesBosses;
 import cl.drakescraft.bosses.boss.BossManager;
 import cl.drakescraft.bosses.boss.OdysseyBoss;
@@ -323,10 +324,13 @@ public final class BossArenaService implements Listener {
         BossArenaSession session = byBoss.remove(event.getEntity().getUniqueId());
         if (session == null) return;
         event.getDrops().clear();
+        int expReward = Math.max(5000, plugin.getConfig().getInt("boss-loot.experience", 5000));
         for (UUID playerId : session.participants()) {
             byPlayer.remove(playerId);
             Player player = Bukkit.getPlayer(playerId);
             if (player != null) {
+                player.giveExp(expReward);
+                player.sendMessage("§a[BossArena] ¡Victoria! Has recibido §e" + expReward + " §ade experiencia.");
                 returnPlayer(player, session.returnLocations().get(playerId));
             } else {
                 rememberReturn(playerId, session.returnLocations().get(playerId));
@@ -336,6 +340,30 @@ public final class BossArenaService implements Listener {
         occupiedCells.remove((int) Math.floor(session.center().getX() / CELL_SIZE));
         activeBossTypes.remove(session.bossType());
         Bukkit.getScheduler().runTaskLater(plugin, () -> clearFloor(session.center()), 20L * 15L);
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        UUID playerId = event.getPlayer().getUniqueId();
+        UUID bossId = byPlayer.remove(playerId);
+        if (bossId == null) return;
+        BossArenaSession session = byBoss.get(bossId);
+        if (session != null) {
+            rememberReturn(playerId, session.returnLocations().get(playerId));
+            boolean anyOnline = false;
+            for (UUID pid : session.participants()) {
+                if (!pid.equals(playerId)) {
+                    Player p = Bukkit.getPlayer(pid);
+                    if (p != null && p.isOnline()) {
+                        anyOnline = true;
+                        break;
+                    }
+                }
+            }
+            if (!anyOnline) {
+                closeAbandonedSession(session);
+            }
+        }
     }
 
     private World arenaWorld() {
@@ -460,6 +488,18 @@ public final class BossArenaService implements Listener {
                 closeBrokenSession(session);
                 continue;
             }
+            boolean anyOnline = false;
+            for (UUID playerId : session.participants()) {
+                Player p = Bukkit.getPlayer(playerId);
+                if (p != null && p.isOnline()) {
+                    anyOnline = true;
+                    break;
+                }
+            }
+            if (!anyOnline) {
+                closeAbandonedSession(session);
+                continue;
+            }
             Location center = session.center();
             Location current = entity.getLocation();
             double dx = current.getX() - center.getX();
@@ -477,6 +517,23 @@ public final class BossArenaService implements Listener {
             }
         }
         containmentReported.retain(byBoss.keySet());
+    }
+
+    /** Cleans up an arena session when all participants have disconnected. */
+    private void closeAbandonedSession(BossArenaSession session) {
+        if (!byBoss.remove(session.bossId(), session)) return;
+        for (UUID playerId : session.participants()) {
+            byPlayer.remove(playerId, session.bossId());
+            rememberReturn(playerId, session.returnLocations().get(playerId));
+        }
+        bosses.removeBoss(session.bossId(), null);
+        var entity = Bukkit.getEntity(session.bossId());
+        if (entity != null) entity.remove();
+        returnSpectators(session.bossId());
+        occupiedCells.remove((int) Math.floor(session.center().getX() / CELL_SIZE));
+        activeBossTypes.remove(session.bossType());
+        Bukkit.getScheduler().runTaskLater(plugin, () -> clearFloor(session.center()), 20L);
+        plugin.getLogger().info("[BossArena] Sesión " + session.id() + " cerrada: todos los participantes se desconectaron.");
     }
 
     /** Prevents a despawned or externally removed boss from marooning arena players. */
