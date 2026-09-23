@@ -16,6 +16,7 @@ import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldBorder;
 import org.bukkit.WorldType;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.event.EventHandler;
@@ -133,6 +134,10 @@ public final class BossArenaService implements Listener {
                 ids.add(player.getUniqueId());
                 byPlayer.put(player.getUniqueId(), boss.getEntity().getUniqueId());
                 player.setFallDistance(0);
+                player.sendTitle("§6⚔ §c" + boss.getDisplayName() + " §6⚔", "§7¡El combate ha comenzado!", 10, 45, 15);
+                try {
+                    player.playSound(center, Sound.EVENT_RAID_HORN, 1.5F, 0.9F);
+                } catch (Throwable ignored) {}
             }
             double challengeMultiplier = targetedHealthMultiplier(ids);
             if (challengeMultiplier > 1.0D) {
@@ -301,7 +306,44 @@ public final class BossArenaService implements Listener {
         spectators.put(viewer.getUniqueId(), new SpectatorReturn(boss, viewer.getLocation().clone(), viewer.getGameMode()));
         viewer.setGameMode(GameMode.SPECTATOR);
         viewer.teleport(session.center().clone().add(0, 18, 0));
+        viewer.sendTitle("§bModo Espectador", "§7Observando combate de §e" + participant.getName(), 10, 40, 15);
+        viewer.sendMessage("§6[BossArena] §7Estás observando a §e" + participant.getName() + "§7. Usa §f/bosswarp leave §7para salir.");
         return true;
+    }
+
+    /** Allows spectators or players to voluntarily leave an arena and return safely. */
+    public boolean leave(Player player) {
+        SpectatorReturn spectator = spectators.remove(player.getUniqueId());
+        if (spectator != null) {
+            player.setGameMode(spectator.gameMode());
+            returnPlayer(player, spectator.origin());
+            player.sendMessage("§a[BossArena] Has salido del modo espectador.");
+            return true;
+        }
+
+        UUID bossId = byPlayer.remove(player.getUniqueId());
+        if (bossId != null) {
+            BossArenaSession session = byBoss.get(bossId);
+            if (session != null) {
+                returnPlayer(player, session.returnLocations().get(player.getUniqueId()));
+                player.sendMessage("§c[BossArena] Has abandonado el combate en la arena.");
+                boolean anyRemaining = false;
+                for (UUID pid : session.participants()) {
+                    if (byPlayer.containsKey(pid)) {
+                        Player p = Bukkit.getPlayer(pid);
+                        if (p != null && p.isOnline()) {
+                            anyRemaining = true;
+                            break;
+                        }
+                    }
+                }
+                if (!anyRemaining) {
+                    closeAbandonedSession(session);
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -325,12 +367,17 @@ public final class BossArenaService implements Listener {
         if (session == null) return;
         event.getDrops().clear();
         int expReward = Math.max(5000, plugin.getConfig().getInt("boss-loot.experience", 5000));
+        String bossName = event.getEntity().getCustomName() != null ? event.getEntity().getCustomName() : session.bossType();
         for (UUID playerId : session.participants()) {
             byPlayer.remove(playerId);
             Player player = Bukkit.getPlayer(playerId);
             if (player != null) {
                 player.giveExp(expReward);
                 player.sendMessage("§a[BossArena] ¡Victoria! Has recibido §e" + expReward + " §ade experiencia.");
+                player.sendTitle("§a§l¡VICTORIA DIVINA!", "§eHas derrotado a " + bossName, 10, 55, 20);
+                try {
+                    player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.5F, 1.0F);
+                } catch (Throwable ignored) {}
                 returnPlayer(player, session.returnLocations().get(playerId));
             } else {
                 rememberReturn(playerId, session.returnLocations().get(playerId));

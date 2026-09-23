@@ -45,6 +45,12 @@ public final class BossWarpCommand implements CommandExecutor, TabCompleter {
             sendPrices(player);
             return true;
         }
+        if (args.length >= 1 && (args[0].equalsIgnoreCase("leave") || args[0].equalsIgnoreCase("salir"))) {
+            if (!arenas.leave(player)) {
+                player.sendMessage("§cNo estás en ninguna arena activa ni en modo espectador.");
+            }
+            return true;
+        }
         if (args.length >= 2 && args[0].equalsIgnoreCase("spectate")) {
             Player target = Bukkit.getPlayerExact(args[1]);
             if (target == null || !arenas.spectate(player, target)) player.sendMessage("§cEse jugador no está en una arena activa.");
@@ -136,7 +142,7 @@ public final class BossWarpCommand implements CommandExecutor, TabCompleter {
     @Override public List<String> onTabComplete(@NotNull CommandSender s, @NotNull Command c, @NotNull String a, @NotNull String[] args) {
         if (args.length == 1) {
             List<String> options = new ArrayList<>(ARENA_BOSS_TYPES);
-            options.addAll(List.of("precios", "spectate"));
+            options.addAll(List.of("precios", "spectate", "leave"));
             if (hasStaffAccess(s)) options.add("staff");
             return options;
         }
