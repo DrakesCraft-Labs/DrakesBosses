@@ -53,7 +53,8 @@ public final class DrakesBosses extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(bossArenas, this);
         Bukkit.getPluginManager().registerEvents(new BossItemListener(this), this);
         Bukkit.getPluginManager().registerEvents(new cl.drakescraft.bosses.gui.BossMenu(this, bossArenas), this);
-        getLogger().info("DrakesBosses listo: bosses, arenas, GUI interactiva, loot y cobros balanceados.");
+        Bukkit.getPluginManager().registerEvents(new cl.drakescraft.bosses.boss.ritual.BossAltarManager(this, bossManager), this);
+        getLogger().info("DrakesBosses listo: bosses, arenas, altares de invocación, GUI interactiva, loot y cobros balanceados.");
     }
 
     @Override

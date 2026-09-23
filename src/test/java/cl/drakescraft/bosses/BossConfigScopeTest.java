@@ -25,7 +25,8 @@ final class BossConfigScopeTest {
                         "natural-spawn",
                         "boss-domains",
                         "bosses",
-                        "boss-loot"),
+                        "boss-loot",
+                        "altars"),
                 config.getKeys(false));
     }
 

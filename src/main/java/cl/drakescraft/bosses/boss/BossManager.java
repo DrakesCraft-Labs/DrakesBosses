@@ -226,6 +226,19 @@ public class BossManager implements Listener {
             OdysseyBoss boss = spawnBoss(type, spawnLoc);
             if (boss != null) {
                 naturalBosses.add(boss.getEntity().getUniqueId());
+                spawnLoc.getWorld().strikeLightningEffect(spawnLoc);
+                spawnLoc.getWorld().playSound(spawnLoc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 2.0F, 0.7F);
+                double announceRadius = cfg.getDouble("boss-balance.announcement-radius", 80.0D);
+                for (Player nearby : spawnLoc.getWorld().getPlayers()) {
+                    if (nearby.getLocation().distanceSquared(spawnLoc) <= announceRadius * announceRadius) {
+                        nearby.sendTitle(
+                                ChatColor.GOLD + "⚡ ¡Presencia Divina! ⚡",
+                                ChatColor.RED + boss.getDisplayName() + " ha descendido cerca.",
+                                10, 50, 20
+                        );
+                    }
+                }
+                plugin.getLogger().info("[NaturalSpawn] Jefe " + type + " generado naturalmente cerca de " + anchor.getName() + " en " + spawnLoc.toVector());
             }
         } catch (Exception e) {
             plugin.getLogger().warning("[NaturalSpawn] Error al intentar spawn natural: " + e.getMessage());

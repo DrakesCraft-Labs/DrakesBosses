@@ -101,18 +101,33 @@ boss-arena:
     players: {}
 
 natural-spawn:
-  # Los bosses publicos pertenecen a arenas; no aparecen libres en survival.
-  enabled: false
-  interval-seconds: 1800
-  chance: 0.25
+  enabled: true
+  interval-seconds: 1500
+  chance: 0.35
   max-active: 2
-  min-distance: 40
-  max-distance: 80
+  min-distance: 40.0
+  max-distance: 85.0
   worlds:
     - world
     - world_nether
     - world_the_end
-  bosses: []
+  bosses:
+    - thor
+    - ares
+    - hades
+    - poseidon
+    - zeus
+    - loki
+    - odin
+    - kratos
+    - heimdall
+    - hidra
+    - cerbero
+    - artemisa
+    - tifon
+    - prometeo
+    - coloso_end
+    - dragon_ancestral
 
 boss-domains:
   # Efecto visual sin reemplazo de bloques y con limpieza al finalizar.
@@ -250,3 +265,11 @@ boss-loot:
     jax:
       drops:
         jax_fragment: 0.50
+
+# Invocación física por Altares en el mundo abierto
+altars:
+  enabled: true
+  # Cooldown por jugador en segundos entre invocaciones en altares
+  cooldown-seconds: 30
+
+
