@@ -28,7 +28,7 @@ public class ThunderStrikeSkill implements BossSkill {
             double offsetX = (random.nextDouble() - 0.5) * 8;
             double offsetZ = (random.nextDouble() - 0.5) * 8;
             Location strikeLoc = base.clone().add(offsetX, 0, offsetZ);
-            base.getWorld().strikeLightning(strikeLoc);
+            base.getWorld().strikeLightningEffect(strikeLoc);
         }
         // 5 hearts = 10 damage
         target.damage(10.0, boss.getEntity());

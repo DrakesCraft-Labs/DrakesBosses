@@ -86,7 +86,7 @@ public class HeimdallBoss extends OdysseyBoss {
             double ox = (random.nextDouble() - 0.5) * 12;
             double oz = (random.nextDouble() - 0.5) * 12;
             Location loc = base.clone().add(ox, 0, oz);
-            base.getWorld().strikeLightning(loc);
+            base.getWorld().strikeLightningEffect(loc);
             launchColoredFirework(loc, Color.fromRGB(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
         }
         base.getWorld().playSound(base, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.2f);

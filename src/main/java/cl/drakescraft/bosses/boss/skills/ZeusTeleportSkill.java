@@ -28,7 +28,7 @@ public class ZeusTeleportSkill implements BossSkill {
         boss.getEntity().teleport(teleLoc);
 
         teleLoc.getWorld().playSound(teleLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.2f);
-        teleLoc.getWorld().strikeLightning(teleLoc);
+        teleLoc.getWorld().strikeLightningEffect(teleLoc);
 
         target.damage(6.0, boss.getEntity()); // 3 hearts from the lightning impact
         target.sendMessage("§e§l¡Zeus se ha teletransportado detrás de ti con un estallido de rayos!");

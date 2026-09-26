@@ -101,6 +101,7 @@ boss-arena:
     players: {}
 
 natural-spawn:
+  # Los bosses publicos pertenecen a arenas; en survival solo spawnean en wilderness.
   enabled: true
   interval-seconds: 1500
   chance: 0.35

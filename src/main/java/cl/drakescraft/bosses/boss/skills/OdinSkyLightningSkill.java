@@ -33,7 +33,7 @@ public final class OdinSkyLightningSkill implements BossSkill {
 
             Bukkit.getScheduler().runTaskLater(DrakesBosses.getInstance(), () -> {
                 if (strikeLoc.getWorld() != null) {
-                    strikeLoc.getWorld().strikeLightning(strikeLoc);
+                    strikeLoc.getWorld().strikeLightningEffect(strikeLoc);
                 }
             }, i * 4L); // 0.2s, 0.4s, 0.6s, etc.
         }

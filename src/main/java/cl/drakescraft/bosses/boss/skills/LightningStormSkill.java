@@ -29,7 +29,7 @@ public class LightningStormSkill implements BossSkill {
                     double offsetX = (random.nextDouble() - 0.5) * 12;
                     double offsetZ = (random.nextDouble() - 0.5) * 12;
                     Location strikeLoc = target.getLocation().add(offsetX, 0, offsetZ);
-                    strikeLoc.getWorld().strikeLightning(strikeLoc);
+                    strikeLoc.getWorld().strikeLightningEffect(strikeLoc);
                 }
             }, delay);
         }

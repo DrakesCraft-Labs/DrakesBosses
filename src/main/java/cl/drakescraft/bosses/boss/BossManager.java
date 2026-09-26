@@ -199,11 +199,14 @@ public class BossManager implements Listener {
                 bosses = DEFAULT_NATURAL_BOSSES;
             }
 
-            // Candidatos: jugadores vivos en mundos permitidos (lista vacía = todos)
+            // Candidatos: jugadores vivos explorando en mundos permitidos (lejos de spawn y fuera de claims)
             java.util.List<Player> candidates = new java.util.ArrayList<>();
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (p.isDead() || p.getGameMode() == org.bukkit.GameMode.SPECTATOR) continue;
+                if (p.isDead() || p.getGameMode() == org.bukkit.GameMode.SPECTATOR || p.getGameMode() == org.bukkit.GameMode.CREATIVE) continue;
                 if (allowedWorlds.isEmpty() || allowedWorlds.contains(p.getWorld().getName())) {
+                    Location worldSpawn = p.getWorld().getSpawnLocation();
+                    if (p.getLocation().distance(worldSpawn) < 300.0) continue;
+                    if (cl.drakescraft.bosses.utils.ClaimCheck.isProtected(p.getLocation())) continue;
                     candidates.add(p);
                 }
             }
@@ -222,6 +225,10 @@ public class BossManager implements Listener {
             int y = base.getWorld().getHighestBlockYAt(base);
             Location spawnLoc = new Location(base.getWorld(), base.getBlockX() + 0.5, y + 1, base.getBlockZ() + 0.5);
 
+            // Verificar que el punto de aparición tampoco esté en spawn ni en claim (o su radio de 12 bloques)
+            if (spawnLoc.distance(spawnLoc.getWorld().getSpawnLocation()) < 300.0) return;
+            if (cl.drakescraft.bosses.utils.ClaimCheck.isAreaProtected(spawnLoc, 12.0)) return;
+
             String type = bosses.get(rnd.nextInt(bosses.size()));
             OdysseyBoss boss = spawnBoss(type, spawnLoc);
             if (boss != null) {
@@ -238,7 +245,7 @@ public class BossManager implements Listener {
                         );
                     }
                 }
-                plugin.getLogger().info("[NaturalSpawn] Jefe " + type + " generado naturalmente cerca de " + anchor.getName() + " en " + spawnLoc.toVector());
+                plugin.getLogger().info("[NaturalSpawn] Jefe " + type + " ha aparecido cerca de " + anchor.getName() + " en " + spawnLoc.getBlockX() + ", " + spawnLoc.getBlockY() + ", " + spawnLoc.getBlockZ() + " (Wilderness)");
             }
         } catch (Exception e) {
             plugin.getLogger().warning("[NaturalSpawn] Error al intentar spawn natural: " + e.getMessage());

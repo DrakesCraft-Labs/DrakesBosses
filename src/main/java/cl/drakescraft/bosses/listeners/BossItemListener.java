@@ -113,7 +113,7 @@ public final class BossItemListener implements Listener {
                 String type = trident.getPersistentDataContainer().get(OdysseyItemManager.ITEM_KEY, PersistentDataType.STRING);
                 if ("odin_spear".equals(type)) {
                     Location loc = target.getLocation();
-                    loc.getWorld().strikeLightning(loc);
+                    loc.getWorld().strikeLightningEffect(loc);
                     loc.getWorld().playSound(loc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.0f);
                 } else if ("poseidon_trident".equals(type)) {
                     triggerTsunami(target.getLocation(), trident.getShooter() instanceof Entity s ? s : null);
@@ -313,13 +313,13 @@ public final class BossItemListener implements Listener {
                 break;
 
             case "odin_spear":
-                targetLoc.getWorld().strikeLightning(targetLoc);
+                targetLoc.getWorld().strikeLightningEffect(targetLoc);
                 targetLoc.getWorld().playSound(targetLoc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.0f);
                 break;
 
             case "mjolnir":
                 // Furia del Trueno — rayo directo sobre el objetivo
-                targetLoc.getWorld().strikeLightning(targetLoc);
+                targetLoc.getWorld().strikeLightningEffect(targetLoc);
                 targetLoc.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, targetLoc.clone().add(0, 1, 0), 30, 0.5, 0.8, 0.5, 0.1);
                 targetLoc.getWorld().playSound(targetLoc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.1f);
                 break;
@@ -329,7 +329,7 @@ public final class BossItemListener implements Listener {
                 for (int i = 0; i < 3; i++) {
                     double ox = (Math.random() - 0.5) * 10;
                     double oz = (Math.random() - 0.5) * 10;
-                    targetLoc.getWorld().strikeLightning(targetLoc.clone().add(ox, 0, oz));
+                    targetLoc.getWorld().strikeLightningEffect(targetLoc.clone().add(ox, 0, oz));
                 }
                 targetLoc.getWorld().playSound(targetLoc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 0.8f);
                 break;
