@@ -137,3 +137,10 @@ Requires Java 21 and Paper `1.21.11`. `mvn clean verify` also runs tests for
 arena configuration/pricing, combat profiles, configuration scope and the
 Infinity armor counter.
 
+---
+
+## 📄 License & Intellectual Property
+
+Copyright © 2026 [**JackStar6677-1**](https://github.com/JackStar6677-1) · [**DrakesCraft Labs**](https://github.com/DrakesCraft-Labs). All Rights Reserved.
+
+This software is **Source-Available** for public inspection and technical audit. Redistribution, commercial repackaging, or unauthorized derivative distribution without explicit written permission from the author is strictly prohibited.
